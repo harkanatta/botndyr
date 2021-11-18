@@ -1,24 +1,15 @@
 
 
-require(httr)
-require(rvest)
-require(tibble)
+library(httr)
+library(rvest)
+library(tibble)
+library(xml2)
 
 URL <- "http://species-identification.org"
 flokkun <- list()
 # Fyrsti ormurinn í Macrobenthos of the North Sea - Polychaeta M.J. de Kluijver et al.:
-# Ormur <- "species.php?species_group=macrobenthos_polychaeta&menuentry=soorten&id=402&tab=beschrijving"
-# Ormur <- "species.php?species_group=macrobenthos_polychaeta&menuentry=soorten&id=629&tab=classificatie" #vesenisormur
-# Ormur <- "species.php?species_group=macrobenthos_polychaeta&menuentry=soorten&id=630&tab=classificatie" #fæ bara ein svo vesen
-# Ormur <- "species.php?species_group=macrobenthos_polychaeta&menuentry=soorten&id=631&tab=classificatie" #vesenisormur
-# Ormur <- "species.php?species_group=macrobenthos_polychaeta&menuentry=soorten&id=632&tab=classificatie" #vesenisormur
-# Ormur <- "species.php?species_group=macrobenthos_polychaeta&menuentry=soorten&id=856&tab=classificatie" #vesenisormur
-# Ormur <- "species.php?species_group=macrobenthos_polychaeta&menuentry=soorten&id=857&tab=classificatie"
-# Ormur <- "species.php?species_group=macrobenthos_polychaeta&menuentry=soorten&id=970&tab=classificatie"
-#"species.php?species_group=macrobenthos_polychaeta&menuentry=soorten&id=629&tab=classificatie"
-# Ormur <- "species.php?species_group=macrobenthos_polychaeta&menuentry=soorten&id=402&tab=classificatie" # Byrjaði hér þegar hellingur reyndist ekki í safninu
-# Ormur <- "species.php?species_group=macrobenthos_polychaeta&menuentry=soorten&id=630&tab=classificatie" Vesenisormur
-Ormur <- "species.php?species_group=macrobenthos_polychaeta&menuentry=soorten&id=632&tab=classificatie"
+ Ormur <- "species.php?species_group=macrobenthos_polychaeta&menuentry=soorten&id=402&tab=beschrijving"
+#Skel: Ormur <- "species.php?species_group=mollusca&menuentry=soorten&id=513&tab=beschrijving"
 
 # þessi for-lúppa þarf að vera mötuð af hlekknum 'Ormur' til þess að byrja á skrefi 1 þar sem hún klippir og límir töflu af vefsíðunni í listann 'flokkun'. Í skrefi 2 sækir hún hlekkinnn á næsta orm fyrir skref 1 og svo koll af kolli þar til einhver leiðinda "encoding"-villa kemur upp en þá þarf að finna síðasta orminn handvirkt og reyna næsta  og næsta orm þar til lúppan kemst af stað aftur. Það er ekkert stopp á lúppunni en ormarnir eru um 500.
 for (i in 1:1000) {
@@ -44,7 +35,15 @@ rass <- rass[!duplicated(rass),]
 write.csv(rass,"Polychaeta.csv")
 
 
-ormar <- read.csv("Polychaeta.csv")
+###<>-<>-<>
+###<>-<>-<>
+###<>-<>-<>
+###<>-<>-<>
+###<>-<>-<>
+
+
+
+ormar <- read.csv("skjol/species-identification/Polychaeta.csv")
 
 rass <- list()
 DF <- data.frame()
@@ -63,21 +62,35 @@ Polychaeta <- do.call(dplyr::bind_rows, rass)
 DT::datatable(Polychaeta[,-c(1,2,3)])
 
 
+###Gögn fengin úr Náttúrufræðingnum: https://timarit.is/page/6780466#page/n82/mode/2up
+###<>-<<>-<<>-<<>-<<>-<<>-<<>-<<>-<
+###<>-<<>-<<>-<<>-<<>-<<>-<<>-<<>-<
 library(data.table)
-asjoc <- read.csv("C:/Users/valty/AppData/Local/Temp/RtmpeEWjmP/henda-1.csv")
+asjoc <- read.csv("skjol/species-identification/henda-1.csv" )
 asjoc[,2] <- gsub("\\.|\\ sp|\\(p)|\\/.*","",asjoc[,2])
 
 library(naniar)
+library(tidyr)
 asjoc <- asjoc %>% janitor::clean_names() %>%
   replace_with_na_all(condition = ~.x == "") %>%
   fill(fylking_flokkur_aettbalkur_phylum_class_order, .direction = "down")
 
-#Polychaeta[Polychaeta$Species %like% "cap", ]
-
 ormanofn <- asjoc[asjoc$fylking_flokkur_aettbalkur_phylum_class_order=="Polychaeta",2] %>% na.omit()
 ormanofn <- lapply(ormanofn$a_ett_tegund_family_species, trimws)
+###<>-<<>-<<>-<<>-<<>-<<>-<<>-<<>-<
+###<>-<<>-<<>-<<>-<<>-<<>-<<>-<<>-<
 
 
+
+ormanofn <- read.csv("Kolgr2016/A7A/talning.csv")
+ormanofn$Flokkun <- gsub("\\.|\\ sp|\\(p)|\\/.*","",ormanofn$Flokkun)
+ormanofn <- as.list(ormanofn$Flokkun)
+
+
+ormanofn <- read.csv("skjol/stodvar.csv",header = T,encoding = "UTF-8",row.names = NULL)
+ormanofn <- as.list(ormanofn[,1])
+
+library(dplyr)
 DF <- data.frame()
 A7Clisti <- list()
 
@@ -108,6 +121,8 @@ for (i in 1:length(ormanofn)) {
           )
       ))
   
+  if (all(is.na(df2$starts_vowel))){next}
+  
   DF <- Polychaeta[!is.na(df2$starts_vowel),seq(1:match(unique(na.omit(df2$starts_vowel)), colnames(Polychaeta)))]
   A7Clisti[i] <- list(DF)
   
@@ -115,7 +130,7 @@ for (i in 1:length(ormanofn)) {
 
 daemi <- do.call(dplyr::bind_rows, A7Clisti)
 daemi <- daemi[!duplicated(daemi),]
-
+DT::datatable(daemi[,-c(1,2,3)])
 #ATH algengt: Glycera er bæði genus (Glycera) og species (Glycera gigantea). Þarf að splitta þessu upp þannig að ef tvö orð þá species annars case_when fyrir restina af dæminu.
 
 
