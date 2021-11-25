@@ -1,25 +1,21 @@
-
-families <- function(ormanofn){
+families <- function(species){
   require(dplyr)
   require(data.table)
   require(tidyverse)
   require(DT)
-  DF <- data.frame()
-  A7Clisti <- list()
   
-  
-  
-  
-  ormanofn <- sapply(ormanofn, function(x) trimws(x))
-  ormanofn <- as.list(ormanofn[,1])
-  ormanofn <- sapply(ormanofn, function(x) gsub("\\.|\\ TUNICATA EÐA FLEIRI?|\\ nýsestir|\\ ungv|\\ juv|\\ sp|\\(p)|\\/.*","",x))
-  ormanofn <- as.list(ormanofn[,1])
+  #species <- Names
+  species <- lapply(species, function(x) trimws(x))
+  species <- sapply(species, function(x) gsub("\\.|\\ TUNICATA EÐA FLEIRI?|\\ nýsestir|\\ ungv|\\ juv|\\ sp|\\(p)|\\/.*","",x))
+  species <- as.list(species[,1])
   
   ormar <- read.csv("skjol/species-identification/Polychaeta.csv")
   ormarA <- read.csv("skjol/species-identification/mollusca.csv")
   ormarB <- read.csv("skjol/species-identification/nemertea.csv")
-  ormar <- (c(unname(ormar)[,2],unname(ormarA)[,2],unname(ormarB)[,2])) 
-    
+  ormarC <- read.csv("skjol/species-identification/Arthropoda.csv")
+  ormarD <- read.csv("skjol/species-identification/Arthropoda.csv")
+  ormar <- (c(unname(ormar)[,2],unname(ormarA)[,2],unname(ormarB)[,2],unname(ormarC)[,2],unname(ormarD)[,2])) 
+  
   rass <- list()
   DFb <- data.frame()
   for (z in 1:length(ormar)) {
@@ -39,43 +35,51 @@ families <- function(ormanofn){
   rass <- rass[order(sapply(rass,ncol),decreasing = T)]
   rass[[1]] <- rass[[1]] %>% mutate(across(where(is.logical), as.character))
   
-  Polychaeta <- do.call(dplyr::bind_rows, rass)
+  Rank <- do.call(dplyr::bind_rows, rass)
   
-  for (i in 1:length(ormanofn)) {
-    #for (i in 10) {
+  
+  DF <- data.frame()
+  AList <- list()
+  Anotherlist <- list()
+  
+  for (i in 1:length(species)) {
     
     ifelse(
-      lengths(strsplit(ormanofn[[i]], "\\W+")) > 1,
+      lengths(strsplit(species[[i]], "\\W+")) > 1,
       df2 <-
-        Polychaeta %>%
-        mutate(
-          starts_vowel =
-            case_when(
-              # left hand side of case_when must be a logical
-              tolower(Polychaeta$Species) %like% tolower(ormanofn[i]) == 1 ~ 'Species')),
+        Rank %>%
+        mutate(ranks = case_when(
+          tolower(Rank$Species) %like% tolower(species[i]) == 1 ~ 'Species')),
       df2 <-
-        Polychaeta %>%
-        mutate(
-          starts_vowel =
-            case_when(
-              # left hand side of case_when must be a logical
-              tolower(Polychaeta$Genus) %like% tolower(ormanofn[i]) == 1 ~ 'Genus',
-              tolower(Polychaeta$Subfamily) %like% tolower(ormanofn[i]) == 1 ~ 'Subfamily',
-              tolower(Polychaeta$Family) %like% tolower(ormanofn[i]) == 1 ~ 'Family',
-              tolower(Polychaeta$Superfamily) %like% tolower(ormanofn[i]) == 1 ~ 'Superfamily',
-              tolower(Polychaeta$Order) %like% tolower(ormanofn[i]) == 1 ~ 'Order',
-              tolower(Polychaeta$Class) %like% tolower(ormanofn[i]) == 1 ~ 'Class'
-            )
+        Rank %>%
+        mutate(ranks = case_when(
+          tolower(Rank$Genus) %like% tolower(species[i]) == 1 ~ 'Genus',
+          tolower(Rank$Subfamily) %like% tolower(species[i]) == 1 ~ 'Subfamily',
+          tolower(Rank$Family) %like% tolower(species[i]) == 1 ~ 'Family',
+          tolower(Rank$Superfamily) %like% tolower(species[i]) == 1 ~ 'Superfamily',
+          tolower(Rank$Order) %like% tolower(species[i]) == 1 ~ 'Order',
+          tolower(Rank$Class) %like% tolower(species[i]) == 1 ~ 'Class'
+        )
         ))
+    ifelse(all(is.na(df2$ranks)),
+           Anotherlist[i] <- species[i],NA)
     
-    if (all(is.na(df2$starts_vowel))){next}
+    if (all(is.na(df2$ranks))){next}
     
-    DF <- Polychaeta[!is.na(df2$starts_vowel),seq(1:match(unique(na.omit(df2$starts_vowel)), colnames(Polychaeta)))]
-    A7Clisti[i] <- list(DF)
+    DF <- Rank[!is.na(df2$ranks),seq(1:match(unique(na.omit(df2$ranks)), colnames(Rank)))]
+    AList[i] <- list(DF)
     
   }
   
-  daemi <- do.call(dplyr::bind_rows, A7Clisti)
-  daemi <- daemi[!duplicated(daemi),]
-  DT::datatable(daemi[,-c(1,2,3)])
+  TheTable <- do.call(dplyr::bind_rows, AList)
+  TheTable <- TheTable[!duplicated(TheTable), ]
+  DT::datatable(TheTable,caption = "Tegundir frá GVH")
+  NotinTheTable <- do.call(rbind,Anotherlist)
+  print(NotinTheTable)
+  
 }
+
+
+syni <- TheTable$Species
+tegundir <- unlist(Names)
+syni[match(tegundir,syni)]
