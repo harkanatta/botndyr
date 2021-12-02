@@ -1,0 +1,1 @@
+Mikið af Ophelina acuminata. Nokkrar dauðar kúfskeljar, 5-6 cm á breidd
