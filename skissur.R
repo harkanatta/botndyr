@@ -108,3 +108,13 @@ ormanofn <- ormanofn %>%
   filter_all(any_vars(. != 0)) #remove rows with only zeros
 ormanofn <- ormanofn[!duplicated(ormanofn),]
 DT::datatable(ormanofn,rownames = T, caption = "2017")
+
+
+
+
+dir <- list.dirs()
+library(data.table)  
+files <- list.files("Kolgr2016",recursive = T,pattern = ".csv", full.names = T)
+temp <- lapply(files, fread, sep=",")
+data <- rbindlist( temp )
+DT::datatable(data,rownames = T, caption = "2017")
