@@ -6,7 +6,7 @@ stodvar <- stodvar[rowSums(stodvar[,-1])!=0,]
 Names2015 <- stodvar[, 1]
 Names <- list(c(Names2015,Names2017))
 
-sapply(Names, function(x) trimws(x))
+#sapply(Names, function(x) trimws(x))
 
 
 families <- function(species){
