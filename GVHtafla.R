@@ -25,7 +25,8 @@ families <- function(species){
 #  species <- sapply(species, function(x) gsub("\\.|\\ TUNICATA EÐA FLEIRI?|\\ lirfur|\\ nýsestir|\\ ungv|\\ juv|\\ sp|\\(p)|\\/.*","",x))
   species <- sapply(species, function(x) gsub("\\.|\\ sp|\\(p)|\\/.*","",x))
   #species <- as.list(species[,1])
-  species <- species[stringi::stri_enc_isascii(species) & !is.na(species) & species != ""]
+  #species <- species[stringi::stri_enc_isascii(species) & !is.na(species) & species != ""]
+  species <- species[!is.na(species) & species != ""]
   species <- as.list(species)
   
   Rank <- read.csv("skjol/species-identification/Rank.csv")
