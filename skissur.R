@@ -117,4 +117,15 @@ library(data.table)
 files <- list.files("Kolgr2016",recursive = T,pattern = ".csv", full.names = T)
 temp <- lapply(files, fread, sep=",")
 data <- rbindlist( temp )
-DT::datatable(data,rownames = T, caption = "2017")
+#DT::datatable(data,rownames = T, caption = "2016")
+
+DT::datatable(data,rownames = T, caption = "2016")
+
+
+
+
+
+"skjol/species-identification/Arthropoda.csv"
+files <- list.files("skjol/species-identification",recursive = T,pattern = ".csv", full.names = T)
+temp <- lapply(files, fread, sep=";")
+data <- rbindlist( temp )
