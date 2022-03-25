@@ -154,7 +154,8 @@ ekkimed(data)
 
 
 
-
+isor siguruður kristinnson hitaveita skags
+laugun@rarik.is
 
 
 
