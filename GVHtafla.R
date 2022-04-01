@@ -1,9 +1,15 @@
 #Greiningar GVH:
 stodvar <- read.csv("skjol/stodvar.csv",header = T,encoding = "UTF-8",row.names = NULL)
 stodvar <- stodvar[rowSums(stodvar[,-1])!=0,]
+Sum2017 <- apply(stodvar[,-1], 1, sum)
+Mean2017 <- apply(stodvar[,-1], 1, mean)
+SD2017 <- apply(stodvar[,-1], 1, sd)
 Names2017 <- stodvar[, 1]
+DF2017 <- data.frame(Names=Names2017, Sum=Sum2017, Mean=round(Mean2017), SD=round(SD2017))
+
 stodvar <- read.csv("skjol/stod2015.csv",header = T,encoding = "UTF-8",row.names = NULL)
 stodvar <- stodvar[rowSums(stodvar[,-1])!=0,]
+Mean2015 <- apply(stodvar[,-1], 1, mean)
 Names2015 <- stodvar[, 1]
 Names <- list(c(Names2015,Names2017))
 
