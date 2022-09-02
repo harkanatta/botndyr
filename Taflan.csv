@@ -1,0 +1,61 @@
+"Kingdom","Phylum","Subphylum","Class","Subclass","Superorder","Order","Suborder","Superfamily","Family","Subfamily","Genus","Species"
+" Animalia"," Mollusca",NA," Bivalvia"," Heterodonta",NA," Veneroida",NA,NA," Semelidae",NA," Abra"," Abra nitida"
+" Animalia"," Mollusca",NA," Bivalvia"," Heterodonta",NA," Veneroida",NA,NA," Cardiidae",NA," Acanthocardia"," Acanthocardia echinata"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Terebellida",NA,NA," Ampharetidae"," Ampharetinae"," Ampharete",NA
+" Animalia"," Arthropoda",NA," Crustacea"," Malacostraca"," Peracarida"," Amphipoda",NA,NA,NA,NA,NA,NA
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Terebellida",NA,NA," Ampharetidae",NA,NA,NA
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Terebellida",NA,NA," Ampharetidae"," Ampharetinae"," Ampharete"," Ampharete acutifrons"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Terebellida",NA,NA," Terebellidae"," Terebellinae"," Amphitrite"," Amphitrite cirrata"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Spionida",NA,NA," Apistobranchidae",NA," Apistobranchus"," Apistobranchus tullbergi"
+" Animalia"," Mollusca",NA," Bivalvia"," Heterodonta",NA," Veneroida",NA,NA," Arcticidae",NA," Arctica"," Arctica islandica"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Cirratulida",NA,NA," Paraonidae",NA," Aricidea"," Aricidea suecica"
+" Animalia"," Arthropoda",NA," Crustacea"," Cirripedia",NA," Thoracica"," Balanomorpha",NA," Balanidae"," Balaninae"," Balanus",NA
+" Animalia"," Arthropoda",NA," Crustacea"," Cirripedia",NA," Thoracica"," Balanomorpha",NA," Balanidae"," Balaninae"," Semibalanus",NA
+" Animalia"," Arthropoda",NA," Crustacea"," Cirripedia",NA," Thoracica"," Balanomorpha",NA," Balanidae"," Coronulinae"," Xenobalanus",NA
+" Animalia"," Mollusca",NA," Gastropoda"," Prosobranchia"," Caenogastropoda"," Neogastropoda",NA,NA," Buccinidae",NA," Buccinum"," Buccinum undatum"
+" Animalia"," Arthropoda",NA," Crustacea"," Malacostraca"," Peracarida"," Amphipoda"," Caprellidea",NA," Caprellidae",NA,NA,NA
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Cirratulida",NA,NA," Cirratulidae",NA," Chaetozone"," Chaetozone setosa"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Cirratulida",NA,NA," Cirratulidae",NA," Cirratulus"," Cirratulus cirratus"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Cossurida",NA,NA," Cossuridae",NA," Cossura"," Cossura longocirrata"
+NA," Arthropoda"," Crustacea"," Malacostraca"," Eumalacostraca"," Peracarida"," Cumacea",NA,NA,NA,NA,NA,NA
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Phyllodocida",NA," Phyllodocoidea"," Phyllodocidae",NA," Eteone"," Eteone longa"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Sabellida",NA,NA," Sabellidae"," Fabriciinae"," Euchone",NA
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Flabelligerida",NA,NA," Flabelligeridae",NA," Flabelligera"," Flabelligera affinis"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Phyllodocida",NA," Aphroditoidea"," Polynoidae",NA," Harmothoe",NA
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Capitellida",NA,NA," Capitellidae",NA," Heteromastus"," Heteromastus filiformis"
+" Animalia"," Mollusca",NA," Bivalvia"," Heterodonta",NA," Myoida",NA,NA," Hiatellidae",NA," Hiatella"," Hiatella arctica"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Terebellida",NA,NA," Terebellidae"," Terebellinae"," Lanassa"," Lanassa venusta"
+" Animalia"," Mollusca",NA," Bivalvia"," Heterodonta",NA," Veneroida",NA,NA," Tellinidae",NA," Macoma"," Macoma calcarea"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Capitellida",NA,NA," Maldanidae",NA,NA,NA
+" Animalia"," Mollusca",NA," Gastropoda"," Prosobranchia"," Archaeogastropoda"," Vetigastropoda",NA," Scissurelloidea"," Trochidae",NA," Margarites"," Margarites groenlandicus"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Capitellida",NA,NA," Capitellidae",NA," Mediomastus"," Mediomastus fragilis"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Phyllodocida",NA," Nereidoidea"," Hesionidae"," Microphthalminae"," Microphthalmus"," Microphthalmus aberrans"
+" Animalia"," Mollusca",NA," Bivalvia"," Pteromorphia",NA," Mytiloida",NA,NA," Mytilidae",NA," Musculus",NA
+" Animalia"," Mollusca",NA," Bivalvia"," Anomalodesmata",NA," Pholadomyoida",NA,NA," Cuspidariidae",NA," Cardiomya",NA
+" Animalia"," Mollusca",NA," Bivalvia"," Heterodonta",NA," Myoida",NA,NA," Myidae",NA," Mya",NA
+" Animalia"," Mollusca",NA," Bivalvia"," Heterodonta",NA," Myoida",NA,NA," Hiatellidae",NA," Panomya",NA
+" Animalia"," Mollusca",NA," Bivalvia"," Heterodonta",NA," Veneroida",NA,NA," Montacutidae",NA," Tellimya",NA
+" Animalia"," Mollusca",NA," Bivalvia"," Heterodonta",NA," Myoida",NA,NA," Myidae",NA," Mya"," Mya arenaria"
+" Animalia"," Mollusca",NA," Bivalvia"," Pteromorphia",NA," Mytiloida",NA,NA," Mytilidae",NA,NA,NA
+" Animalia"," Mollusca",NA," Gastropoda"," Prosobranchia"," Caenogastropoda"," Neotaenioglossa",NA,NA," Naticidae",NA,NA,NA
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Capitellida",NA,NA," Capitellidae",NA," Notomastus"," Notomastus latericeus"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Terebellida",NA,NA," Terebellidae"," Terebellinae"," Nicolea"," Nicolea zostericola"
+" Animalia"," Mollusca",NA," Gastropoda"," Opisthobranchia",NA," Nudibranchia",NA,NA,NA,NA,NA,NA
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Opheliida",NA,NA," Opheliidae"," Ophelininae"," Ophelina"," Ophelina acuminata"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Terebellida",NA,NA," Pectinariidae",NA," Pectinaria"," Pectinaria granulata"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Terebellida",NA,NA," Pectinariidae",NA," Pectinaria"," Pectinaria koreni"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Flabelligerida",NA,NA," Flabelligeridae",NA," Pherusa"," Pherusa plumosa"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Phyllodocida",NA," Aphroditoidea"," Pholoidae",NA," Pholoe",NA
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Phyllodocida",NA," Phyllodocoidea"," Phyllodocidae",NA," Phyllodoce"," Phyllodoce maculata"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Spionida",NA,NA," Spionidae",NA," Polydora",NA
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Capitellida",NA,NA," Maldanidae"," Euclymeninae"," Praxillella"," Praxillella praetermissa"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Spionida",NA,NA," Spionidae",NA," Pygospio"," Pygospio elegans"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Sabellida",NA,NA," Sabellidae",NA,NA,NA
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Sabellida",NA,NA," Serpulidae",NA,NA,NA
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Opheliida",NA,NA," Scalibregmatidae",NA," Scalibregma"," Scalibregma inflatum"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Orbiniida",NA,NA," Orbiniidae"," Orbiniinae"," Scoloplos"," Scoloplos armiger"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Phyllodocida",NA," Nereidoidea"," Syllidae"," Exogoninae"," Sphaerosyllis"," Sphaerosyllis erinaceus"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Spionida",NA,NA," Spionidae",NA,NA,NA
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Phyllodocida",NA," Nereidoidea"," Syllidae"," Syllinae"," Typosyllis"," Typosyllis cornuta"
+" Animalia"," Mollusca",NA," Bivalvia"," Heterodonta",NA," Veneroida",NA,NA," Thyasiridae",NA," Thyasira"," Thyasira flexuosa"
+" Animalia"," Annelida",NA," Polychaeta",NA,NA," Terebellida",NA,NA," Terebellidae",NA,NA,NA
