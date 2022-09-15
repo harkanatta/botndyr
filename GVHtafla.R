@@ -73,6 +73,7 @@ families <- function(species){
   TheTable <- do.call(dplyr::bind_rows, AList)
   TheTable <- TheTable[!duplicated(TheTable), ]
   DT::datatable(TheTable,caption = "Flokkun")
+  # write.csv(TheTable,"eitthvadheiti.csv", row.names = F) 
   #Til að sjá hvað er ekki tekið með (oft villur í nöfnum):
   #NotinTheTable <- do.call(rbind,Anotherlist)
   #print(NotinTheTable)
@@ -141,7 +142,8 @@ ekkimed <- function(species){
   
   #Til að sjá hvað er ekki tekið með (oft villur í nöfnum):
   NotinTheTable <- do.call(rbind,Anotherlist)
-  print(NotinTheTable)
+  DT::datatable(NotinTheTable,caption = "Ekki með á listanum frá Species-identification-portal")
+  #print(NotinTheTable)
   
   
 }
