@@ -83,7 +83,7 @@ families <- function(species){
 
 
 families(data)
-
+families(Names)
 
 
 ekkimed <- function(species){
@@ -174,3 +174,20 @@ laugun@rarik.is
 syni <- TheTable$Species
 tegundir <- unlist(Names)
 syni[match(tegundir,syni)]
+
+
+
+
+
+
+rass <- c(Names[[1]][1:3])
+sapply(rass, function(x) gsub("\\ ","+",x))
+numer <- worrms::wm_name2id_(name = rass)
+sapply(numer, function(x) wm_classification(unlist(unname(x))))
+
+
+
+
+
+
+
