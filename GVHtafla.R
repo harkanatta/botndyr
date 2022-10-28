@@ -37,6 +37,8 @@ families <- function(species){
   
   Rank <- read.csv("skjol/species-identification/Rank.csv")
   
+  
+  df2 <- data.frame()
   DF <- data.frame()
   AList <- list()
   Anotherlist <- list()
@@ -45,7 +47,7 @@ families <- function(species){
     
     ifelse(
       lengths(strsplit(species[[i]], "\\W+")) > 1,
-      df2 <-
+      df2 <- #búa til nýjan data frame df2 með nýjum dálki "ranks" þar sem orðið species, genus, subfamily osfrv. kemur fyrir í línu þeirrar tegundar "i" sem um ræðir.
         Rank %>%
         mutate(ranks = case_when(
               tolower(Rank$Species) %like% tolower(species[i]) == 1 ~ 'Species')),
@@ -60,18 +62,21 @@ families <- function(species){
               tolower(Rank$Class) %like% tolower(species[i]) == 1 ~ 'Class'
             )
         ))
+    
     ifelse(all(is.na(df2$ranks)),
     Anotherlist[i] <- species[i],NA)
     
     if (all(is.na(df2$ranks))){next}
     
     DF <- Rank[!is.na(df2$ranks),seq(1:match(unique(na.omit(df2$ranks)), colnames(Rank)))]
+    DF <- DF[!duplicated(DF), ]
+    # Finna tail(colnames(DF),n=1) og matcha það við stodvar til að setja fjölda aftan við
     AList[i] <- list(DF)
     
   }
   
   TheTable <- do.call(dplyr::bind_rows, AList)
-  TheTable <- TheTable[!duplicated(TheTable), ]
+  #TheTable <- TheTable[!duplicated(TheTable), ]
   DT::datatable(TheTable,caption = "Flokkun")
   # write.csv(TheTable,"eitthvadheiti.csv", row.names = F) 
   #Til að sjá hvað er ekki tekið með (oft villur í nöfnum):
