@@ -129,3 +129,96 @@ DT::datatable(data,rownames = T, caption = "2016")
 files <- list.files("skjol/species-identification",recursive = T,pattern = ".csv", full.names = T)
 temp <- lapply(files, fread, sep=";")
 data <- rbindlist( temp )
+
+
+
+
+
+tafla <- families(list(Names2017))
+taff <- tafla
+stodvar$Flokkun
+
+for (i in 1:dim(taff)[1]) {
+  cbind(taff[i,], stodvar[stodvar$Flokkun==trimws(taff[i,max.col(!is.na(taff[i,]),'last')]),-1])
+  df <- stodvar[stodvar$Flokkun==trimws(taff[i,max.col(!is.na(taff[i,]),'last')]),]
+  print(df)
+}
+ 
+tafla[i,max.col(!is.na(tafla[i,]),'last')]
+
+
+
+ df2 <- data.frame()
+  DF <- data.frame()
+  
+  ifelse(
+    !is.na(tafla$Species[i,]),
+    df2 <- #búa til nýjan data frame df2 með nýjum dálki "ranks" þar sem orðið species, genus, subfamily osfrv. kemur fyrir í línu þeirrar tegundar "i" sem um ræðir.
+      Rank %>%
+      mutate(ranks = case_when(
+        tolower(Rank$Species) %like% tolower(species[i]) == 1 ~ 'Species')),
+    df2 <-
+      Rank %>%
+      mutate(ranks = case_when(
+        tolower(Rank$Genus) %like% tolower(species[i]) == 1 ~ 'Genus',
+        tolower(Rank$Subfamily) %like% tolower(species[i]) == 1 ~ 'Subfamily',
+        tolower(Rank$Family) %like% tolower(species[i]) == 1 ~ 'Family',
+        tolower(Rank$Superfamily) %like% tolower(species[i]) == 1 ~ 'Superfamily',
+        tolower(Rank$Order) %like% tolower(species[i]) == 1 ~ 'Order',
+        tolower(Rank$Class) %like% tolower(species[i]) == 1 ~ 'Class'
+      )
+      ))
+  
+  
+  
+  
+  
+  
+  
+  df <- tafla[1,]
+  
+  #Stöðvar 2017
+  stodvar <- read.csv("skjol/stodvar.csv",header = T,encoding = "UTF-8",row.names = NULL)
+  stodvar <- stodvar[rowSums(stodvar[,-1])!=0,]
+  stodvar$Flokkun <- lapply(stodvar$Flokkun, function(x) trimws(x))
+  stodvar$Flokkun <- sapply(stodvar$Flokkun, function(x) gsub("\\.|\\ TUNICATA EÐA FLEIRI?|\\ lirfur|\\ nýsestir|\\ ungv|\\ juv|\\ sp|\\(p)|\\/.*","",x))
+  stodvar$Flokkun <- sapply(stodvar$Flokkun, function(x) gsub("\\.|\\ sp|\\(p)|\\/.*","",x))
+  #stodvar$Flokkun <- as.list(stodvar$Flokkun[,1])
+  #stodvar$Flokkun <- stodvar$Flokkun[stringi::stri_enc_isascii(stodvar$Flokkun) & !is.na(stodvar$Flokkun) & stodvar$Flokkun != ""]
+  stodvar$Flokkun <- stodvar$Flokkun[!is.na(stodvar$Flokkun) & stodvar$Flokkun != ""]
+  #stodvar$Flokkun <- as.list(stodvar$Flokkun)
+  
+  
+  library(plyr)
+  ddply(stodvar,"Flokkun",numcolwise(sum))
+  
+  #tafla <- families(list(Names2017)) #hafa return(TheTable)
+  taff <- tafla
+  stodvar$Flokkun
+  
+  A <- list()
+  for (i in 1:dim(taff)[1]) {
+    A[[i]] <- cbind(taff[i,], stodvar[stodvar$Flokkun==trimws(taff[i,max.col(!is.na(taff[i,]),'last')]),-1])
+    #df <- stodvar[stodvar$Flokkun==trimws(taff[i,max.col(!is.na(taff[i,]),'last')]),]
+    #print(df)
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  A <- list()
+  for (i in 1:dim(taff)[1]) {
+    A[[i]] <- cbind(taff[i,], stodvar17[stodvar17$Flokkun==trimws(taff[i,max.col(!is.na(taff[i,]),'last')]),-1])
+  
+  }
+  
+  

@@ -1,4 +1,4 @@
-,A7,B5,B8,C4,E3,E4
+Flokkun,A7,B5,B8,C4,E3,E4
 Abra nitida,32,72,68,32,0,40
 Acarina sp,0,0,0,0,0,0
 Acanthocardia echinata,0,1,0,0,0,0
@@ -21,14 +21,14 @@ Ascidiacea sp,0,0,0,0,0,0
 Astarte borealis,0,0,0,0,0,0
 Asteroidea,0,0,0,0,0,4
 Axionice maculata,0,0,0,0,0,0
-Balanus,0,0,0,0,0,4
-Balanus nýsestir,0,0,0,0,0,180
+Balanus balanus,0,0,0,0,0,4
+Balanus balanus nýsestir,0,0,0,0,0,180
 Bivalvia sp.,0,0,0,0,0,0
 Brada inhabilis,0,0,0,0,0,0
 Brada villosa,0,0,0,0,0,0
 Bryozoa,0,0,0,0,0,0
 Buccinum undatum,0,0,0,0,0,1
-Cardidae juv,8,12,12,0,0,4
+Cardiidae juv,8,12,12,0,0,4
 Campanulariidae,0,0,0,0,0,0
 Capitella capitata,0,0,0,0,0,0
 Caprellidae,0,0,0,0,1,0
@@ -76,7 +76,7 @@ Macoma calcarea,23,121,124,134,17,71
 Malacoceros fuliginosus,0,0,0,0,0,0
 Maldanidae sp,0,0,0,0,0,1
 Margarites groenlandicus,0,0,0,0,4,0
-Mediomastus filiformis kemur líka Heteromastus filiformis,0,0,0,0,1,0
+Mediomastus filiformis,0,0,0,0,1,0
 Mediomastus fragilis,32,64,64,52,27,80
 Microphthalmus aberrans,16,4,4,20,0,20
 Moelleria costulata,0,0,0,0,0,0
@@ -92,7 +92,7 @@ Mytilus edulis,0,0,0,0,0,0
 Möttuldýr TUNICATA EÐA FLEIRI?,0,0,0,0,0,0
 Naticidae,0,0,0,0,0,4
 Naineris quadricuspida,0,0,0,0,0,0
-Nemertea=nemertina,8,0,4,8,12,12
+Nemertea,8,0,4,8,12,12
 Nematoda,0,20,0,136,0,8
 Nephtyidae sp,0,0,0,0,0,0
 Nepthys,0,1,0,2,6,2

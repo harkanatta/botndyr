@@ -38,12 +38,13 @@ families <- function(species){
   Rank <- read.csv("skjol/species-identification/Rank.csv")
   
   
-  df2 <- data.frame()
-  DF <- data.frame()
+  
   AList <- list()
   Anotherlist <- list()
   
   for (i in 1:length(species)) {
+    df2 <- data.frame()
+    DF <- data.frame()
     
     ifelse(
       lengths(strsplit(species[[i]], "\\W+")) > 1,
@@ -64,25 +65,28 @@ families <- function(species){
         ))
     
     ifelse(all(is.na(df2$ranks)),
-    Anotherlist[i] <- species[i],NA)
+    Anotherlist[i] <- species[i],NA) #Ef df2$ranks er bara með NA þá er species[i] sett til hliðar með öðrum sem passa ekki við neitt í Rank.csv
     
-    if (all(is.na(df2$ranks))){next}
+    if (all(is.na(df2$ranks))){next} #Ef df2$ranks er bara með NA þá er farið í næsta i
     
-    DF <- Rank[!is.na(df2$ranks),seq(1:match(unique(na.omit(df2$ranks)), colnames(Rank)))]
-    DF <- DF[!duplicated(DF), ]
-    # Finna tail(colnames(DF),n=1) og matcha það við stodvar til að setja fjölda aftan við
-    AList[i] <- list(DF)
+    fjD = seq(1:match(unique(na.omit(df2$ranks)), colnames(Rank))) #fjöldi dálka til að sækja úr Rank.csv fyrir tiltekna línu í species
+    DF <- Rank[!is.na(df2$ranks),fjD]
+    DF <- DF[!duplicated(DF), ] # Fyrir tilfelli þar sem species[[i]] er hærri flokkunareining en tegund. Til dæmis er Amphipoda yfir 400
+    
+    # ifelse(dim(DF)[2]<13,
+    # for(i in (13-dim(DF))[2]:13){
+    #   DF[,i] <- NA},NA)
+    # 
+    # DF <- cbind(DF[i,1:13], stodvar[stodvar$Flokkun==species[[i]],2:6])
+    
+    AList[i] <- list(DF) #listi með öllum species[i] sem passa við Rank.csv
     
   }
   
-  TheTable <- do.call(dplyr::bind_rows, AList)
-  #TheTable <- TheTable[!duplicated(TheTable), ]
-  DT::datatable(TheTable,caption = "Flokkun")
-  # write.csv(TheTable,"eitthvadheiti.csv", row.names = F) 
-  #Til að sjá hvað er ekki tekið með (oft villur í nöfnum):
-  #NotinTheTable <- do.call(rbind,Anotherlist)
-  #print(NotinTheTable)
   
+  TheTable <- do.call(dplyr::bind_rows, AList)
+  #return(TheTable)
+  DT::datatable(TheTable,caption = "Species-identification-portal")
 
 }
 

@@ -1,0 +1,117 @@
+---
+title: "Botndýr 2015 og 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Botndýr 2017
+
+```{r innlestur}
+stodvar17 <- read.csv("skjol/stodvar.csv",header = T,encoding = "UTF-8",row.names = NULL)
+stodvar17 <- stodvar17[rowSums(stodvar17[,-1])!=0,]
+
+stodvar17$Flokkun <- lapply(stodvar17$Flokkun, function(x) trimws(x))
+  stodvar17$Flokkun <- sapply(stodvar17$Flokkun, function(x) gsub("\\.|\\ TUNICATA EÐA FLEIRI?|\\ lirfur|\\ nýsestir|\\ ungv|\\ ungviði|\\ juv|\\ sp|\\(p)|\\/.*","",x))
+  stodvar17$Flokkun <- sapply(stodvar17$Flokkun, function(x) gsub("\\.|\\ sp|\\(p)|\\/.*","",x))
+  stodvar17$Flokkun <- stodvar17$Flokkun[!is.na(stodvar17$Flokkun) & stodvar17$Flokkun != ""]
+
+  library(plyr)
+  stodvar17 <- ddply(stodvar17,"Flokkun",numcolwise(sum))
+
+  Names2017 <- stodvar17[, 1]
+  
+  Rank <- read.csv("skjol/species-identification/Rank.csv")
+
+```
+
+## Lúppa með Rank.csv úr Marine Species
+
+```{r loop}
+families <- function(species){
+  require(dplyr)
+  require(data.table)
+  require(tidyverse)
+  require(DT)
+  
+  #species <- Names
+  species <- lapply(species, function(x) trimws(x))
+  species <- sapply(species, function(x) gsub("\\.|\\ TUNICATA EÐA FLEIRI?|\\ lirfur|\\ nýsestir|\\ ungv|\\ juv|\\ sp|\\(p)|\\/.*","",x))
+  species <- sapply(species, function(x) gsub("\\.|\\ sp|\\(p)|\\/.*","",x))
+  #species <- as.list(species[,1])
+  #species <- species[stringi::stri_enc_isascii(species) & !is.na(species) & species != ""]
+  species <- species[!is.na(species) & species != ""]
+  species <- as.list(species)
+  
+  
+  AList <- list()
+  Anotherlist <- list()
+  
+  for (i in 1:length(species)) {
+    df2 <- data.frame()
+    DF <- data.frame()
+    
+    ifelse(
+      lengths(strsplit(species[[i]], "\\W+")) > 1,
+      df2 <- #búa til nýjan data frame df2 með nýjum dálki "ranks" þar sem orðið species, genus, subfamily osfrv. kemur fyrir í línu þeirrar tegundar "i" sem um ræðir.
+        Rank %>%
+        mutate(ranks = case_when(
+              tolower(Rank$Species) %like% tolower(species[i]) == 1 ~ 'Species')),
+      df2 <-
+        Rank %>%
+        mutate(ranks = case_when(
+              tolower(Rank$Genus) %like% tolower(species[i]) == 1 ~ 'Genus',
+              tolower(Rank$Subfamily) %like% tolower(species[i]) == 1 ~ 'Subfamily',
+              tolower(Rank$Family) %like% tolower(species[i]) == 1 ~ 'Family',
+              tolower(Rank$Superfamily) %like% tolower(species[i]) == 1 ~ 'Superfamily',
+              tolower(Rank$Order) %like% tolower(species[i]) == 1 ~ 'Order',
+              tolower(Rank$Class) %like% tolower(species[i]) == 1 ~ 'Class'
+            )
+        ))
+    
+    ifelse(all(is.na(df2$ranks)),
+    Anotherlist[i] <- species[i],NA) #Ef df2$ranks er bara með NA þá er species[i] sett til hliðar með öðrum sem passa ekki við neitt í Rank.csv
+    
+    if (all(is.na(df2$ranks))){next} #Ef df2$ranks er bara með NA þá er farið í næsta i
+    
+    fjD = seq(1:match(unique(na.omit(df2$ranks)), colnames(Rank))) #fjöldi dálka til að sækja úr Rank.csv fyrir tiltekna línu í species
+    DF <- Rank[!is.na(df2$ranks),fjD]
+    DF <- DF[!duplicated(DF), ] # Fyrir tilfelli þar sem species[[i]] er hærri flokkunareining en tegund. Til dæmis er Amphipoda yfir 400
+    
+    # ifelse(dim(DF)[2]<13,
+    # for(i in (13-dim(DF))[2]:13){
+    #   DF[,i] <- NA},NA)
+    # 
+    # DF <- cbind(DF[i,1:13], stodvar17[stodvar17$Flokkun==species[[i]],2:6])
+    
+    AList[i] <- list(DF) #listi með öllum species[i] sem passa við Rank.csv
+    
+  }
+  
+  
+  TheTable <- do.call(dplyr::bind_rows, AList)
+  return(TheTable)
+  #DT::datatable(TheTable,caption = "Species-identification-portal 2017")
+
+}
+
+
+```
+
+
+## Binda saman
+
+```{r bindingin}
+tafla17 <- families(as.list(Names2017))  
+taff <- tafla17
+
+  A <- list()
+  tala <- c()
+  for (i in 1:dim(taff)[1]) {
+    tala[i] <- max.col(!is.na(taff[i,]),'last')
+    A[i] <- cbind(taff[i,], stodvar17[stodvar17$Flokkun==trimws(taff[i,tala[i]]),-1])
+  }
+
+```
