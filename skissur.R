@@ -225,8 +225,10 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
   
   
   
-  
+  B <- list()
   for (w in 1:length(Rank$Species)) {
-    print(table(lengths(strsplit(Rank$Species[i], "\\W+")) > 1))
+  B[[w]] <- lengths(strsplit(trimws(Rank$Species[w]), "\\W+")) < 2
   }
+  rass <- do.call(rbind,B[])
+  table(rass)
   
