@@ -37,12 +37,12 @@ families <- function(species){
   require(DT)
   
   #species <- Names
-  species <- lapply(species, function(x) trimws(x))
-  species <- sapply(species, function(x) gsub("\\.|\\ TUNICATA EÐA FLEIRI?|\\ lirfur|\\ nýsestir|\\ ungv|\\ juv|\\ sp|\\(p)|\\/.*","",x))
-  species <- sapply(species, function(x) gsub("\\.|\\ sp|\\(p)|\\/.*","",x))
+  #species <- lapply(species, function(x) trimws(x))
+  #species <- sapply(species, function(x) gsub("\\.|\\ TUNICATA EÐA FLEIRI?|\\ lirfur|\\ nýsestir|\\ ungv|\\ juv|\\ sp|\\(p)|\\/.*","",x))
+  #species <- sapply(species, function(x) gsub("\\.|\\ sp|\\(p)|\\/.*","",x))
   #species <- as.list(species[,1])
   #species <- species[stringi::stri_enc_isascii(species) & !is.na(species) & species != ""]
-  species <- species[!is.na(species) & species != ""]
+  #species <- species[!is.na(species) & species != ""]
   species <- as.list(species)
   
   
@@ -104,14 +104,14 @@ families <- function(species){
 ## Binda saman
 
 ```{r bindingin}
-tafla17 <- families(as.list(Names2017))  
+tafla17 <- families(Names2017)
 taff <- tafla17
 
   A <- list()
   tala <- c()
   for (i in 1:dim(taff)[1]) {
     tala[i] <- max.col(!is.na(taff[i,]),'last')
-    A[i] <- cbind(taff[i,], stodvar17[stodvar17$Flokkun==trimws(taff[i,tala[i]]),-1])
+    A[[i]] <- cbind(taff[i,], stodvar17[stodvar17$Flokkun==trimws(taff[i,tala[i]]),-1])
   }
 
 ```

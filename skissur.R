@@ -207,10 +207,12 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
   
   
   
-  
-  
-  
-  
+  A <- list()
+  tala <- c()
+  for (i in 1:dim(taff)[1]) {
+    tala[i] <- max.col(!is.na(taff[i,]),'last')
+    A[i] <- cbind(taff[i,], stodvar17[stodvar17$Flokkun==trimws(taff[i,tala[i]]),-1])
+  }
   
   
   
@@ -221,4 +223,12 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
   
   }
   
+  
+  
+  B <- list()
+  for (w in 1:length(Rank$Species)) {
+  B[[w]] <- lengths(strsplit(trimws(Rank$Species[w]), "\\W+")) < 2
+  }
+  rass <- do.call(rbind,B[])
+  table(rass)
   
