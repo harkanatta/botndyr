@@ -232,3 +232,38 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
   rass <- do.call(rbind,B[])
   table(rass)
   
+  ress <- list()
+  for (i in 957:958) {
+    print(Rank[i,])
+  ress[[i]] <- Rank %>% 
+    mutate(Species = ifelse(lengths(strsplit(trimws(Rank$Species[i]), "\\W+")) < 2,
+                            paste(trimws(Rank$Genus[i]),trimws(Rank$Species[i])),
+                            NA))
+  }
+  
+  
+  
+  
+  xess <- Rank[957:958,]
+  ress <- list()
+  for (i in 1:length(xess$Species)) {
+    print(xess[i,])
+    ress[[i]] <- xess %>% 
+      mutate(Species = ifelse(lengths(strsplit(trimws(xess$Species[i]), "\\W+")) < 2,
+                              paste(trimws(xess$Genus[i]),trimws(xess$Species[i])),
+                              NA))
+  }
+  
+  
+  xess <- Rank[957:958,]
+  ress <- list()
+  for (i in 1:length(xess$Species)) {
+    
+    ress[[i]] <- xess %>% 
+      mutate(Species = ifelse(lengths(strsplit(trimws(xess$Species[i]), "\\W+")) < 2,
+                              paste(trimws(xess$Genus[i]),trimws(xess$Species[i])),
+                              xess$Species[i]))
+  }
+  
+  B <- do.call(cbind, ress)
+  
