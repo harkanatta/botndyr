@@ -128,9 +128,10 @@ unlist(ambi$specieslist[,,1])
 ```{r benthos}
 library(benthos)
 library(tidyverse)
-library(dplyr)
-gogn <- readr::read_csv(here::here('Kolgr2016/B5A/talning.csv')) %>% 
-  ddply(.(Flokkun),summarize, N=sum(N*skipting))
+library(plyr)
+gogn <- readr::read_csv(here::here('Kolgr2016/E4B/talning.csv')) %>% 
+  ddply(.(Flokkun),summarize, N=sum(N*skipting)) %>% 
+  drop_na(N)
 
 gogn %>%
     mutate(HAS_GROUP = has_ambi(taxon = Flokkun))

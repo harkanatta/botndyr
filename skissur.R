@@ -267,3 +267,54 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
   
   B <- do.call(cbind, ress)
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  library(benthos)
+  library(tidyverse)
+  library(plyr)
+  gogn <- readr::read_csv(here::here('Kolgr2016/E4B/talning.csv')) %>% 
+    ddply(.(Flokkun),summarize, N=sum(N*skipting)) %>% 
+    drop_na(N)
+  
+  gogn %>%
+    mutate(HAS_GROUP = has_ambi(taxon = Flokkun))
+  
+  gogn %>%
+    mutate(HAS_GROUP = has_ambi(taxon = Flokkun)) %>%
+    summarise(percentage = 100 * sum(N[!HAS_GROUP]) / sum(N)) %>%
+    as.numeric
+  
+  gogn %>% 
+    iti(taxon = Flokkun, count = N)
+  
+  gogn %>%
+    mutate(HAS_GROUP = has_iti(taxon = Flokkun))
+  
+  gogn %>% 
+    #group_by(HABITAT, YEAR, POOLRUN, POOLID) %>% 
+    summarise(
+      Nn = total_abundance(count = N),
+      S = species_richness(taxon = Flokkun, count = N),
+      D = margalef(taxon = Flokkun, count = N),
+      SN = rygg(taxon = Flokkun, count = N),
+      SNa = rygg(taxon = Flokkun, count = N, adjusted = TRUE),
+      H = shannon(taxon = Flokkun, count = N),
+      AMBI=ambi(taxon = Flokkun, count = N)
+    )
+  
