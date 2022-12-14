@@ -7,10 +7,10 @@ SD2017 <- apply(stodvar[,-1], 1, sd)
 Names2017 <- stodvar[, 1]
 DF2017 <- data.frame(Names=Names2017, Sum=Sum2017, Mean=round(Mean2017), SD=round(SD2017))
 
-stodvar <- read.csv("skjol/stod2015.csv",header = T,encoding = "UTF-8",row.names = NULL)
-stodvar <- stodvar[rowSums(stodvar[,-1])!=0,]
-Mean2015 <- apply(stodvar[,-1], 1, mean)
-Names2015 <- stodvar[, 1]
+stodvar15 <- read.csv("skjol/stod2015.csv",header = T,encoding = "UTF-8",row.names = NULL)
+stodvar15 <- stodvar[rowSums(stodvar15[,-1])!=0,]
+Mean2015 <- apply(stodvar15[,-1], 1, mean)
+Names2015 <- stodvar15[, 1]
 Names <- list(c(Names2015,Names2017))
 
 #Kolgrafafjörður '16
@@ -160,7 +160,7 @@ ekkimed <- function(species){
 
 
 
-ekkimed(data)
+ekkimed(Names)
 
 
 
