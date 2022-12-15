@@ -9,8 +9,12 @@ DF2017 <- data.frame(Names=Names2017, Sum=Sum2017, Mean=round(Mean2017), SD=roun
 
 stodvar <- read.csv("skjol/stod2015.csv",header = T,encoding = "UTF-8",row.names = NULL)
 stodvar <- stodvar[rowSums(stodvar[,-1])!=0,]
+Sum2015 <- apply(stodvar[,-1], 1, sum)
 Mean2015 <- apply(stodvar[,-1], 1, mean)
+SD2015 <- apply(stodvar[,-1], 1, sd)
 Names2015 <- stodvar[, 1]
+DF2015 <- data.frame(Names=Names2015, Sum=Sum2015, Mean=round(Mean2015), SD=round(SD2015))
+
 Names <- list(c(Names2015,Names2017))
 
 #Kolgrafafjörður '16

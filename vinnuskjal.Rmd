@@ -159,3 +159,14 @@ gogn %>%
         AMBI=ambi(taxon = Flokkun, count = N)
     )
 ```
+
+```{r innlestur}
+
+list_of_files <- list.files(here::here("C:/Users/valty/Documents/vinna/github/botndyr/Kolgr2016/"),pattern =  "talning.csv", recursive = T, full.names = T)
+
+df <- readr::read_csv(list_of_files, id = tail("file_name"),1)
+
+
+```
+
+
