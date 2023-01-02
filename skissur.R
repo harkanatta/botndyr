@@ -318,3 +318,30 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
       AMBI=ambi(taxon = Flokkun, count = N)
     )
   
+  
+  
+  
+  
+  
+  
+  
+  dataPath <- here::here("Kolgr2016")
+  PTfiles <- list.files(path=dataPath, pattern = "csv", full.names = TRUE, recursive = T)
+  
+  
+  classes <- c("character","integer", "factor", "character")
+  
+  # build function to load data
+  load_data <- function(dataPath, classes) { 
+    tables <- lapply(PTfiles, read.csv, colClasses=classes, na.strings=c("NA", ""))
+    names(tables) <- substr(dirname( PTfiles ),53,55)
+    data.table::rbindlist(tables, idcol = "id" )
+  }
+  
+  #clock
+  method1 <- system.time(
+    PT <- load_data(path, classes)
+  )
+  
+  PT$skipting <- gsub("¼|1/4|0.25",4,PT$skipting)
+  
