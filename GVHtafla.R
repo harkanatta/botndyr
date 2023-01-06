@@ -31,6 +31,9 @@ temp <- lapply(files, fread, sep=",")
 data <- rbindlist( temp )
 data <- list(unique(data$Flokkun))
 
+
+
+
 families <- function(species){
   require(dplyr)
   require(data.table)
@@ -162,16 +165,16 @@ ekkimed <- function(species){
   
   #Til að sjá hvað er ekki tekið með (oft villur í nöfnum):
   NotinTheTable <- do.call(rbind,Anotherlist)
-  DT::datatable(NotinTheTable,caption = "Ekki með á listanum frá Species-identification-portal")
+  #DT::datatable(NotinTheTable,caption = "Ekki með á listanum frá Species-identification-portal")
   #print(NotinTheTable)
-  
+  return(unique(NotinTheTable))
   
 }
 
 
 
 
-ekkimed(Names)
+rass <- ekkimed(Names)
 
 
 

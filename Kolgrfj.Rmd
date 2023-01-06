@@ -10,7 +10,7 @@ Nú hafa tegundir að mestu verið greindar úr botndýrasýnum í Kolgrafafirð
 ```{r pakkar, message=FALSE, warning=FALSE, include=FALSE}
 
 knitr::opts_chunk$set(echo = TRUE)
-Rpakkar <- c("tidyverse","benthos","worrms", "plyr", "data.table")
+Rpakkar <- c("tidyverse","benthos","worrms", "plyr", "data.table", "DT", "dplyr")
 pacman::p_load(Rpakkar, character.only = TRUE)
 
 #Sys.setlocale("LC_ALL", "Icelandic") # `Sys.setlocale` er hér fyrir íslenskar dagsetningar.
@@ -106,7 +106,19 @@ allartalningar <- rbind(GVH,gogn)
   remove_ind <- lapply(strsplit(remove_list , "\\|")[[1]] , \(x) grep(x , allartalningar$Flokkun , fixed = T)) |> 
     unlist() |> 
     unique()
-  allartalningar <- allartalningar[-remove_ind,]
+  df <- allartalningar[-remove_ind,]  
+  df$Flokkun <- sapply(df$Flokkun, function(x) gsub("\\.|\\ TUNICATA EÐA FLEIRI?|\\ lirfur|\\ nýsestir|\\ ungv|\\ juv|\\ sp|\\(p)|\\/.*","",x)) #Laga heitin. Eykur benthos::is_accepted(taxon = Flokkun) úr 432 í 522 
+  
+   
+         A <- c()
+        
+         for (i in unique(df$Flokkun)) {
+           A[i] <- try(wm_name2id(name = i) )
+         }
+         A <- as.data.frame(A)
+         A$flokkun <- row.names(A)
+         DF <- merge(df,A, by.x="Flokkun", by.y="flokkun")
+ 
 
 ```
 
