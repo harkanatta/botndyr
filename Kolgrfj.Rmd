@@ -85,9 +85,11 @@ allartalningar <- rbind(GVH,gogn)
 ```
 
 
+
 ```{r hreinsun}
 
-df$Flokkun <-   sapply(allartalningar$Flokkun, function(x) gsub("\\ kemur líka Heteromastus filiformis|\\ Sipunculidea/|\\.|\\ TUNICATA EÐA FLEIRI?|\\ nýsestir|\\ ungviði|\\ ungv.|\\ ungv|\\ juv|\\ sp.|\\ sp|\\(p)|\\ ath","",x)) #Laga heitin. Eykur benthos::is_accepted(taxon = Flokkun) úr 432 í 522
+df <- allartalningar
+df$Flokkun <-   sapply(allartalningar$Flokkun, function(x) gsub("\\ kemur líka Heteromastus filiformis|\\ Sipunculidea/|\\.|\\ TUNICATA EÐA FLEIRI?|\\ nýsestir|\\ ungviði|\\ ungv.|\\ ungv|\\ juv|\\ sp.|\\ sp|\\ ath","",x)) #Laga heitin. Eykur benthos::is_accepted(taxon = Flokkun) úr 432 í 522
 
          A <- c()
         
@@ -99,6 +101,8 @@ df$Flokkun <-   sapply(allartalningar$Flokkun, function(x) gsub("\\ kemur líka 
          DF <- merge(df,A, by.x="Flokkun", by.y="flokkun")
          DF$worms <- as.integer(as.character(DF$A)) #Öll heiti í remove_list tekin úr 'allartalningar' og sett í df
          
+         
+         unique(DF$Flokkun[is.na(DF$worms)]) "Skoða óvirk heiti"
         
 
 ```
