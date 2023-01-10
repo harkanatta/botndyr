@@ -564,7 +564,7 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
   
   # annað:  
   allartalningar$Flokkun <- lapply(allartalningar$Flokkun, function(x) trimws(x))
-  allartalningar$Flokkun <- sapply(allartalningar$Flokkun, function(x) gsub("\\ Sipunculidea/|\\.|\\ TUNICATA EÐA FLEIRI?|\\ lirfur|\\ nýsestir|\\ ungv|\\ juv|\\ sp|\\(p)|\\/.*","",x))
+  allartalningar$Flokkun <- sapply(allartalningar$Flokkun, function(x) gsub("\\ kemur líka Heteromastus filiformis|\\ m.|\\ Sipunculidea/|\\.|\\ TUNICATA EÐA FLEIRI?|\\ lirfur|\\ nýsestir|\\ ungv|\\ juv|\\ sp|\\(p)|\\/.*","",x))
   kemur líka Heteromastus filiformis
   nýsestir
   m.
@@ -663,4 +663,9 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
          rass <- bind_rows(df_list)
          #print(rass,n=50)
          geggjad <- cbind(rass,DFekkina)
+         
+         
+         
+         
+         DF[is.na(DF$worms),]
          

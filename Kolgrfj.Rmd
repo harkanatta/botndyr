@@ -80,36 +80,15 @@ gogn <- as.data.frame(data) %>%
 
 ########## Heild
 allartalningar <- rbind(GVH,gogn)
+#write.csv(allartalningar, "allartalningar.csv",na="", row.names = F, fileEncoding = "latin1")
 
-###Hreinsun
+```
 
-  remove_list <- paste(c("—Ssekkt",
-                         "Foraminifera",
-                         "Götungar",
-                         "Harpacticoida",
-                         "Hydrozoa",
-                         "Lirfur",
-                         "Skordýr",
-                         "Ranaormur",
-                         "Lirfurogdrasl",
-                         "Bandormur",
-                         "Lirfa",
-                         "Skeljar",
-                         "Óþekkt",
-                         "Rækjulirfa",
-                         "Nematoda",
-                         "Nemertea",
-                         "Ostracoda"
-                         ), collapse = '|')
-  
-  
-  remove_ind <- lapply(strsplit(remove_list , "\\|")[[1]] , \(x) grep(x , allartalningar$Flokkun , fixed = T)) |> 
-    unlist() |> 
-    unique()
-  df <- allartalningar[-remove_ind,]  
-  df$Flokkun <- sapply(df$Flokkun, function(x) gsub("\\.|\\ TUNICATA EÐA FLEIRI?|\\ lirfur|\\ nýsestir|\\ ungv|\\ juv|\\ sp|\\(p)|\\/.*","",x)) #Laga heitin. Eykur benthos::is_accepted(taxon = Flokkun) úr 432 í 522 
-  
-   
+
+```{r hreinsun}
+
+df$Flokkun <-   sapply(allartalningar$Flokkun, function(x) gsub("\\ kemur líka Heteromastus filiformis|\\ Sipunculidea/|\\.|\\ TUNICATA EÐA FLEIRI?|\\ nýsestir|\\ ungviði|\\ ungv.|\\ ungv|\\ juv|\\ sp.|\\ sp|\\(p)|\\ ath","",x)) #Laga heitin. Eykur benthos::is_accepted(taxon = Flokkun) úr 432 í 522
+
          A <- c()
         
          for (i in unique(df$Flokkun)) {
@@ -118,8 +97,165 @@ allartalningar <- rbind(GVH,gogn)
          A <- as.data.frame(A)
          A$flokkun <- row.names(A)
          DF <- merge(df,A, by.x="Flokkun", by.y="flokkun")
- 
+         DF$worms <- as.integer(as.character(DF$A)) #Öll heiti í remove_list tekin úr 'allartalningar' og sett í df
+         
+        
 
+```
+
+
+
+
+```{r taxa}
+
+ DFekkina <- DF[!is.na(DF$worms),]
+         B <- list()
+         for (i in 1:length(DFekkina$worms)) {
+           B[[i]] <-  wm_classification(DFekkina$worms[i])
+         }
+         df_list <- lapply(1:length(B), 
+                           function(x) (pivot_wider(B[[x]][-1], names_from = rank, values_from = scientificname)))
+         
+         rass <- bind_rows(df_list)
+         #print(rass,n=50)
+         geggjad <- cbind(rass,DFekkina)
+
+
+###Hreinsun
+
+ 
+  remove_list <- paste(c("—Ssekkt",
+                         "—ßekkt",
+                         "Foraminifera",
+                         "Götungar",
+                         "Harpacticoida",
+                         "Hydrozoa",
+                         "Lirfur",
+                         "lirfur",
+                         "Skordýr",
+                         "Ranaormur",
+                         "Lirfurogdrasl",
+                         "Bandormur",
+                         "Lirfa",
+                         "egg",
+                         "Óþekkt",
+                         "Rækjulirfa",
+                         "Nematoda",
+                         "Nemertea",
+                         "Möttuldýr?",
+                         "Porifera",
+                         "rækjulirfa",
+                         "Ostracoda"
+                         ), collapse = '|')
+  
+  
+  remove_ind <- lapply(strsplit(remove_list , "\\|")[[1]] , \(x) grep(x , allartalningar$Flokkun , fixed = T)) |> 
+    unlist() |> 
+    unique()
+  df <- allartalningar[-remove_ind,]  #Öll heiti í remove_list tekin úr 'allartalningar' og sett í df
+  
+
+         A <- c()
+        
+         for (i in unique(df$Flokkun)) {
+           A[i] <- try(wm_name2id(name = i) )
+         }
+         A <- as.data.frame(A)
+         A$flokkun <- row.names(A)
+         DF <- merge(df,A, by.x="Flokkun", by.y="flokkun")
+         DF$worms <- as.integer(as.character(DF$A)) # Þau heiti sem fá ekki númer verða NA
+         
+         DFekkina <- DF[!is.na(DF$worms),]
+         B <- list()
+         for (i in 1:length(DFekkina$worms)) {print(i)
+           B[[i]] <-  wm_classification(DFekkina$worms[i])
+         }
+         df_list <- lapply(1:length(B), 
+                           function(x) (pivot_wider(B[[x]][-1], names_from = rank, values_from = scientificname)))
+         
+         rass <- bind_rows(df_list)
+         #print(rass,n=50)
+         #geggjad <- cbind(rass,DFekkina)
+ 
+unique(DF$Flokkun[is.na(DF$worms)])
+  
+  
+DF %>%
+  mutate(Flokkun = case_when(
+    str_detect(event_type, "Astartidae borealis") ~ "Astarte borealis",
+    str_detect(event_type, "Exogone verrugera")  ~ "Exogone verugera",
+    str_detect(event_type, "Möttuldýr") ~ "Tunicata",
+    str_detect(event_type, "Campanulariidae sp")  ~ "Campanulariidae",
+    str_detect(event_type, "Cardidae") ~ "Cardiidae",
+    str_detect(event_type, "Cerastoderma ovale")  ~ "Parvicardium pinnulatum",
+    str_detect(event_type, "Clinocardium cillaturn") ~ "Clinocardium ciliatum",
+    str_detect(event_type, "Riots")  ~ "Riot",
+    str_detect(event_type, "Cycloterus lumpus") ~ "Cyclopterus lumpus",
+    str_detect(event_type, "Eteone longa ath")  ~ "Eteone longa",
+    str_detect(event_type, "Gattyana cirrosa") ~ "Gattyana cirrhosa",
+    str_detect(event_type, "Campanulariidae sp")  ~ "Campanulariidae",
+    str_detect(event_type, "Cardidae") ~ "Cardiidae",
+    str_detect(event_type, "Cerastoderma ovale")  ~ "Parvicardium pinnulatum",
+    str_detect(event_type, "Clinocardium cillaturn") ~ "Clinocardium ciliatum",
+    TRUE ~ event_type
+    )
+  )
+         str_replace(DF, "[aeiou]", "-")
+         Astarte borealis
+         #Tunicata 
+         #Exogone verrugera
+         
+DF %>%
+  mutate(Flokkun = case_when(         
+    str_detect(event_type, "Arenicolarina"       ~ "Arenicola marina",
+    str_detect(event_type,"Clinocardium cillaturn"     ~ 
+    str_detect(event_type,"Henricia sanguinolenta"     ~
+    str_detect(event_type,"Möttuldýr?"                 ~
+    str_detect(event_type,"Nuculana tenuis"            ~
+    str_detect(event_type,"Phyllodoce maculata"        ~
+    str_detect(event_type,"Praxillella m"              ~
+    str_detect(event_type,"Skeljar"                    ~
+    str_detect(event_type,"Terebellides benedi"        ~
+    str_detect(event_type,"Tubificoides benedi"       ~
+    str_detect(event_type,"Astartidae borealis"  ~
+    str_detect(event_type,"Cycloterus lumpus"     ~
+    str_detect(event_type,"lirfa"                 ~
+    str_detect(event_type,"Musculus"              ~
+    str_detect(event_type,"Nudibranch"            ~
+    str_detect(event_type,"Plergoniuminosum"      ~
+    str_detect(event_type,"Priapulus camelus"     ~
+    str_detect(event_type,"spio"                  ~
+    str_detect(event_type,"Terribellides kozloffi"~
+    str_detect(event_type,"Tubificoides benedict" ~
+    str_detect(event_type,"Campanulariidae sp"  ~
+    str_detect(event_type,"Eteone longa ath"     ~
+    str_detect(event_type,"Macoma calcaria"      ~
+    str_detect(event_type,"Mya"                  ~
+    str_detect(event_type,"Oligochaeta"          ~
+    str_detect(event_type,"Plerugoniuminosissum" ~
+    str_detect(event_type,"Priapulus candatus"   ~
+    str_detect(event_type,"Spio"                 ~
+    str_detect(event_type,"Terribellides stroemi"~
+    str_detect(event_type,"Cardidae"                  ~
+    str_detect(event_type,"Exogone verrugera"          ~
+    str_detect(event_type,"Mediomastus filiformis"     ~
+    str_detect(event_type,"Nephtiydae"                 ~
+    str_detect(event_type,"Ophryotrocha cf Cosmetandra" ~
+    str_detect(event_type,"Polydora"                   ~
+    str_detect(event_type,"rækjulirfa"                 ~
+    str_detect(event_type,"Sternapsis scutata"         ~
+    str_detect(event_type,"Tubicoides benedi"     ~
+    str_detect(event_type,"Cerastoderma ovale"    ~
+    str_detect(event_type,"Gattyana cirrosa"       ~
+    str_detect(event_type,"Möttuldýr"              ~
+    str_detect(event_type,"Nepthys"                ~
+    str_detect(event_type,"Opistobranchia"         ~
+    str_detect(event_type,"Polynoida"              ~
+    str_detect(event_type,"Serripes groenlandica"  ~
+    str_detect(event_type,"Terebellidae"           ~
+    str_detect(event_type,"Tubicoides kozloffi"    ~
+
+         
 ```
 
 ## Including Plots
