@@ -576,28 +576,30 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
   allartalningar <- allartalningar[-remove_ind,]
   
   
-  tafla <- allartalningar %>% 
-    group_by(Artal, stod) %>% 
-    summarise(
-      Nn = total_abundance(count = N),
-      S = species_richness(taxon = Flokkun, count = N),
-      D = margalef(taxon = Flokkun, count = N),
-      SN = rygg(taxon = Flokkun, count = N),
-      SNa = rygg(taxon = Flokkun, count = N, adjusted = TRUE),
-      H = shannon(taxon = Flokkun, count = N),
-      AMBI=ambi(taxon = Flokkun, count = N)
-    )
+  
+  
+  
+  tafla <- geggjad %>% 
+    filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
+    ddply(.(Artal, stod),summarise, Nn = total_abundance(count = N),
+          S = species_richness(taxon = Flokkun, count = N),
+          D = margalef(taxon = Flokkun, count = N),
+          SN = rygg(taxon = Flokkun, count = N),
+          SNa = rygg(taxon = Flokkun, count = N, adjusted = TRUE),
+          H = shannon(taxon = Flokkun, count = N),
+          AMBI=ambi(taxon = Flokkun, count = N)) %>% 
+    pivot_longer(!c(Artal,stod,Nn),names_to = "index", values_to = "Skor")
 
   
   
   
   ###myndir
-  litir <- colorRampPalette(c('#045579', 'white','#d75f07','seashell','#069acc'))
+  #litir <- colorRampPalette(c('#045579', 'white','#d75f07','seashell','#069acc'))
   litir <-  colorRampPalette(c("red","blue"),bias=.1,space="rgb")
   tafla %>% 
     ggplot(aes(x = Artal, y = Nn)) +
-    geom_bar(aes(fill = stod), stat = "identity", color="black", size =1,position="dodge") # +
-    xlab("") + ylab("") + labs(fill = "", title = "Landanir í Húnaflóa 2022", caption = "(Gögn fengin af vef Fiskistofu (fiskistofa.is))") +
+    geom_bar(aes(fill = stod), stat = "identity", color="black", size =1,position="dodge")  +
+    xlab("") + labs(fill = "", title = "Landanir í Húnaflóa 2022", caption = "(Gögn fengin af vef Fiskistofu (fiskistofa.is))") +
     theme_minimal() +
     scale_fill_manual(values = litir(12)) +
     scale_y_continuous(labels = scales::label_dollar(prefix = "", suffix = " \nTonn"))
@@ -605,11 +607,15 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
   
   ggplot(tafla,                    # Einfaldir punktar með línum
          aes(x = Artal,
-             y = H,
+             y = score,
              col = stod)) +
     geom_line() +
+    theme_classic() +
+    theme(strip.background = element_blank()) +
+    ggh4x::facet_grid2( ~ index, scales = "free_y", independent = "y") +
     geom_point(colour="black", shape=21, size = 4,
-               aes(fill=stod))  
+               aes(fill=stod)) +
+    labs(title = "Fjölbreytileikastuðlar", caption = "(Botndýr í Kolgrafafirði 2013-2017)")
   
   
   
@@ -669,3 +675,63 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
          
          DF[is.na(DF$worms),]
          
+         
+         
+         
+         
+         
+         
+gogn <- geggjad %>% 
+ filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
+ mutate(Artal = factor(Artal)) %>% 
+ ddply(.(Artal,stod,Flokkun),summarise, N=sum(Nu)) %>% 
+ pivot_wider(names_from = stod, values_from = N)
+
+BBIlisti <- list()
+BBIastand <- list()
+for (i in unique(gogn$Artal)) {
+  my_BBI <- gogn %>% filter(Artal %in% c(i)) %>%
+    select(-Artal) %>%
+    BBI()
+# calculating nEQR values and ecological quality status
+BBIlisti[[i]] <- as.data.frame(cbind(my_BBI$BBI, Artal=i))
+BBIastand[[i]] <- my_BBI$BBIclass
+#my_nEQR <- nEQR(my_BBI$BBI) 
+}
+
+
+
+
+
+
+
+
+
+
+p <- ggplot()
+for (i in 1:5) p <- p + geom_point(data=BBIlisti[[i]], aes(Artal,AMBI))
+p
+#
+
+
+
+
+pl <- Reduce(f = function(p, d) p + geom_point(data=d, aes(AMBI,Artal)), 
+             x = BBIlisti, init = ggplot(), accumulate = TRUE)
+
+p <- ggplot()
+
+plot <- function(df){
+  p <- p + geom_line(data=df, aes(AMBI,Artal))
+}
+
+lapply(BBIlisti, plot)
+
+p
+
+rass <- do.call(rbind,nEQR)
+mm <- as.matrix(rass, ncol = 7)
+
+heatmap.2(x = mm, Rowv = FALSE, Colv = FALSE, dendrogram = "none",
+          cellnote = mm, notecol = "black", notecex = 2,
+          trace = "none", key = FALSE, margins = c(7, 11))
