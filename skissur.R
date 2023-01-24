@@ -292,7 +292,7 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
     ddply(.(Flokkun),summarize, N=sum(N*skipting)) %>% 
     drop_na(N)
   
-  gogn %>%
+  MedAmbi <- gogn %>%
     mutate(HAS_GROUP = has_ambi(taxon = Flokkun))
   
   gogn %>%
@@ -310,12 +310,13 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
     #group_by(HABITAT, YEAR, POOLRUN, POOLID) %>% 
     summarise(
       Nn = total_abundance(count = N),
-      S = species_richness(taxon = Flokkun, count = N),
-      D = margalef(taxon = Flokkun, count = N),
-      SN = rygg(taxon = Flokkun, count = N),
-      SNa = rygg(taxon = Flokkun, count = N, adjusted = TRUE),
-      H = shannon(taxon = Flokkun, count = N),
-      AMBI=ambi(taxon = Flokkun, count = N)
+      Nu = total_abundance(count = alls),
+      S = species_richness(taxon = Flokkun, count = alls),
+      D = margalef(taxon = Flokkun, count = alls),
+      SN = rygg(taxon = Flokkun, count = alls),
+      SNa = rygg(taxon = Flokkun, count = alls, adjusted = TRUE),
+      H = shannon(taxon = Flokkun, count = alls),
+      AMBI=ambi(taxon = Flokkun, count = alls)
     )
   
   
@@ -344,4 +345,6 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
   )
   
   PT$skipting <- gsub("¼|1/4|0.25",4,PT$skipting)
-  
+  PT <- PT[!is.na(N),]
+  PT$alls <- PT$N*as.integer(PT$skipting)
+  DT::datatable(PT)
