@@ -7,10 +7,21 @@ SD2017 <- apply(stodvar[,-1], 1, sd)
 Names2017 <- stodvar[, 1]
 DF2017 <- data.frame(Names=Names2017, Sum=Sum2017, Mean=round(Mean2017), SD=round(SD2017))
 
+<<<<<<< HEAD
+stodvar <- read.csv("skjol/stod2015.csv",header = T,encoding = "UTF-8",row.names = NULL)
+stodvar <- stodvar[rowSums(stodvar[,-1])!=0,]
+Sum2015 <- apply(stodvar[,-1], 1, sum)
+Mean2015 <- apply(stodvar[,-1], 1, mean)
+SD2015 <- apply(stodvar[,-1], 1, sd)
+Names2015 <- stodvar[, 1]
+DF2015 <- data.frame(Names=Names2015, Sum=Sum2015, Mean=round(Mean2015), SD=round(SD2015))
+
+=======
 stodvar15 <- read.csv("skjol/stod2015.csv",header = T,encoding = "UTF-8",row.names = NULL)
 stodvar15 <- stodvar[rowSums(stodvar15[,-1])!=0,]
 Mean2015 <- apply(stodvar15[,-1], 1, mean)
 Names2015 <- stodvar15[, 1]
+>>>>>>> 37888f48051a19171d444ff397d01b83ecb253b0
 Names <- list(c(Names2015,Names2017))
 
 #Kolgrafafjörður '16
@@ -19,6 +30,9 @@ files <- list.files("Kolgr2016",recursive = T,pattern = ".csv", full.names = T)
 temp <- lapply(files, fread, sep=",")
 data <- rbindlist( temp )
 data <- list(unique(data$Flokkun))
+
+
+
 
 families <- function(species){
   require(dplyr)
@@ -151,16 +165,16 @@ ekkimed <- function(species){
   
   #Til að sjá hvað er ekki tekið með (oft villur í nöfnum):
   NotinTheTable <- do.call(rbind,Anotherlist)
-  DT::datatable(NotinTheTable,caption = "Ekki með á listanum frá Species-identification-portal")
+  #DT::datatable(NotinTheTable,caption = "Ekki með á listanum frá Species-identification-portal")
   #print(NotinTheTable)
-  
+  return(unique(NotinTheTable))
   
 }
 
 
 
 
-ekkimed(Names)
+rass <- ekkimed(Names)
 
 
 

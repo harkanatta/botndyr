@@ -288,11 +288,97 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
   library(benthos)
   library(tidyverse)
   library(plyr)
-  gogn <- readr::read_csv(here::here('Kolgr2016/E4B/talning.csv')) %>% 
-    ddply(.(Flokkun),summarize, N=sum(N*skipting)) %>% 
-    drop_na(N)
+ 
   
+  
+  
+  
+  
+  
+  
+  dataPath <- here::here("Kolgr2016")
+  datafiles <- list.files(path=dataPath, pattern = "csv", full.names = TRUE, recursive = T)
+  datafiles <- datafiles[-19]
+  classes <- c("character","integer", "factor", "character")
+  
+  # build function to load data
+  load_data <- function(dataPath, classes) { 
+    tables <- lapply(datafiles, read.csv, colClasses=classes, na.strings=c("NA", ""))
+    names(tables) <- substr(dirname( datafiles ),57,59)
+    data.table::rbindlist(tables, idcol = "id" )
+  }
+  
+  data <- load_data(dataPath, classes)
+  
+  data$stod <- substr(data$id,1,2)
+  data$skipting <- gsub("¼|1/4|0.25",4,data$skipting) # laga misræmi í skráningu á súbbuninni
+  data$Flokkun <- sapply(data$Flokkun, function(x) gsub("\\.|\\ sp|\\(p)|\\/.*","",x)) #Laga heitin. Eykur benthos::is_accepted(taxon = Flokkun) úr 432 í 522
+  data$Flokkun <- str_to_sentence(data$Flokkun) #Stór stafur í byrjun heitis
+  data <- data[!is.na(data$N) & !is.na(data$Flokkun) & data$N!="NA",]
+
+  #ath með að skipta út Terebellinae fyrir Terebellidae því það er is_accepted(taxon="Terebellidae") == TRUE
+  
+  remove_list <- paste(c("—Ssekkt",
+                         "Foraminifera",
+                         "Götungar",
+                         "Harpacticoida",
+                         "Hydrozoa",
+                         "Lirfur",
+                         "Skordýr",
+                         "Ranaormur",
+                         "Lirfurogdrasl",
+                         "Bandormur",
+                         "Lirfa",
+                         "Skeljar",
+                         "Óþekkt",
+                         "Rækjulirfa",
+                         "Nematoda",
+                         "Nemertea",
+                         "Ostracoda"
+                         ), collapse = '|')
+  
+  
+  remove_ind <- lapply(strsplit(remove_list , "\\|")[[1]] , \(x) grep(x , data$Flokkun , fixed = T)) |> 
+    unlist() |> 
+    unique()
+  data <- data[-remove_ind,]
+  
+  ##Shannon 
+  shannon2016 <- lapply(split(data,data$stod,drop=T ), \(x) shannon(taxon = x$Flokkun, count = x$N))
+  unlist(shannon2016)
+  plot(unlist(shannon2016))
+  
+  ggplot(df2, aes(x=dose, y=len, group=supp, color=supp)) + 
+    geom_pointrange(aes(ymin=len-sd, ymax=len+sd))
+  
+  
+<<<<<<< HEAD
   MedAmbi <- gogn %>%
+=======
+  library(plyr)
+  library(benthos)
+  library(tidyverse)
+  #rass <- ddply(data,.(id,Flokkun),summarize, N=sum(N)) %>% 
+        mutate(COMPLIANT = is_accepted(taxon = Flokkun)) 
+  
+  #write.csv(rass[rass$COMPLIANT=="FALSE",],"rass.csv",row.names = F)
+  
+  
+  
+  
+  
+  
+  
+  #gogn <- readr::read_csv(here::here('Kolgr2016/E4B/talning.csv')) %>% 
+  gogn <- as.data.frame(data) %>% 
+    ddply(.(Flokkun,id,N,skipting,stod),summarize, Artal=2016, Nu=sum(N*as.integer(skipting))) #%>% 
+    #drop_na(N) %>% 
+    #mutate(klass_id=wm_name2id(name = Flokkun)) %>% 
+    #mutate(HAS_GROUP = has_ambi(taxon = Flokkun))
+ 
+    
+  gogn %>%
+>>>>>>> dc1a0a0fd3705911a60dcba78ad7c842e50391b0
     mutate(HAS_GROUP = has_ambi(taxon = Flokkun))
   
   gogn %>%
@@ -307,7 +393,7 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
     mutate(HAS_GROUP = has_iti(taxon = Flokkun))
   
   gogn %>% 
-    #group_by(HABITAT, YEAR, POOLRUN, POOLID) %>% 
+    group_by(stod) %>% 
     summarise(
       Nn = total_abundance(count = N),
       Nu = total_abundance(count = alls),
@@ -321,30 +407,343 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
   
   
   
+  tegundalisti <- ddply(gogn,.(Flokkun),summarize, N=sum(N))
+  DT::datatable(tegundalisti)
+  
+  AMBI2016 <- DF[DF$A %in% gogn$Flokkun,]
+  
+  AlltAMBI <- DF[DF$A %in% allartalningar$Flokkun,]
   
   
   
   
   
-  dataPath <- here::here("Kolgr2016")
-  PTfiles <- list.files(path=dataPath, pattern = "csv", full.names = TRUE, recursive = T)
+  
+  #### 2ö14
+  
+  t2014 <- read.csv(here::here("Kolgr2014",list.files(here::here("Kolgr2014"))),encoding="latin1") %>%
+    pivot_longer(!Flokkun, names_to = "dolla", values_to = "N") %>% 
+    na.omit(N) %>% 
+    mutate(skipting = substr(dolla, nchar(dolla), nchar(dolla)),
+           skipting =as.numeric(skipting),
+           skipting =ifelse(is.na(skipting),1,skipting*1),
+           dolla = substr(dolla,1,3),
+           stod = substr(dolla,1,2),
+           Artal = 2014,
+           Nu = N*skipting) %>%
+    rename(id = dolla)
   
   
-  classes <- c("character","integer", "factor", "character")
+  t2014 %>% 
+    group_by(stod) %>% 
+    summarise(
+      Nn = total_abundance(count = N),
+      S = species_richness(taxon = Flokkun, count = N),
+      D = margalef(taxon = Flokkun, count = N),
+      SN = rygg(taxon = Flokkun, count = N),
+      SNa = rygg(taxon = Flokkun, count = N, adjusted = TRUE),
+      H = shannon(taxon = Flokkun, count = N),
+      AMBI=ambi(taxon = Flokkun, count = N)
+    )
   
-  # build function to load data
-  load_data <- function(dataPath, classes) { 
-    tables <- lapply(PTfiles, read.csv, colClasses=classes, na.strings=c("NA", ""))
-    names(tables) <- substr(dirname( PTfiles ),53,55)
-    data.table::rbindlist(tables, idcol = "id" )
-  }
+
   
-  #clock
-  method1 <- system.time(
-    PT <- load_data(path, classes)
-  )
   
+  #### 2013
+  
+<<<<<<< HEAD
   PT$skipting <- gsub("¼|1/4|0.25",4,PT$skipting)
   PT <- PT[!is.na(N),]
   PT$alls <- PT$N*as.integer(PT$skipting)
   DT::datatable(PT)
+=======
+  t2013 <- read.csv(here::here("Kolgr2013",list.files(here::here("Kolgr2013"), pattern = "csv")),encoding="latin1")[ ,-c(1,2)] %>%
+    pivot_longer(!Flokkun, names_to = "dolla", values_to = "N") %>% 
+    na.omit(N) %>% 
+    mutate(skipting = substr(dolla, nchar(dolla), nchar(dolla))) %>% 
+    mutate(skipting = case_when(grepl("[[:alpha:]]",skipting) ~ 1,
+                                TRUE ~ as.numeric(as.character(skipting))),
+           dolla = substr(dolla,1,3),
+           stod = substr(dolla,1,2),
+           Artal = 2013,
+           Nu = N*skipting) %>%
+    rename("id" = dolla)
+  
+  t2013 <- t2013[t2013$stod != "U1" & t2013$stod != "U2",] #Utanbrúarstöðvarnar teknar út 
+  
+  t2013 %>% 
+    group_by(stod) %>% 
+    summarise(
+      Nn = total_abundance(count = N),
+      S = species_richness(taxon = Flokkun, count = N),
+      D = margalef(taxon = Flokkun, count = N),
+      SN = rygg(taxon = Flokkun, count = N),
+      SNa = rygg(taxon = Flokkun, count = N, adjusted = TRUE),
+      H = shannon(taxon = Flokkun, count = N),
+      AMBI=ambi(taxon = Flokkun, count = N)
+    )
+  
+    
+  #### 2015
+  
+  t2015 <- read.csv(here::here("Kolgr2015",list.files(here::here("Kolgr2015"), pattern = "csv")),encoding="latin1") %>%
+    pivot_longer(!Flokkun, names_to = "dolla", values_to = "N") %>% 
+    na.omit(N) %>% 
+    mutate(skipting = substr(dolla, nchar(dolla), nchar(dolla)),
+           skipting =as.numeric(skipting),
+           skipting =ifelse(is.na(skipting),1,skipting*1),
+           dolla = substr(dolla,1,3),
+           stod = substr(dolla,1,2),
+           Artal = 2015,
+           Nu = N*skipting) %>%
+    rename(id = dolla)
+  
+  
+  t2015 %>% 
+    group_by(stod) %>% 
+    summarise(
+      Nn = total_abundance(count = N),
+      S = species_richness(taxon = Flokkun, count = N),
+      D = margalef(taxon = Flokkun, count = N),
+      SN = rygg(taxon = Flokkun, count = N),
+      SNa = rygg(taxon = Flokkun, count = N, adjusted = TRUE),
+      H = shannon(taxon = Flokkun, count = N),
+      AMBI=ambi(taxon = Flokkun, count = N)
+    )
+  
+  
+  #### 2017
+  
+  t2017 <- read.csv(here::here("Kolgr2017",list.files(here::here("Kolgr2017"), pattern = "csv")),encoding="latin1") %>%
+    pivot_longer(!Flokkun, names_to = "dolla", values_to = "N") %>% 
+    na.omit(N) %>% 
+    mutate(skipting = substr(dolla, nchar(dolla), nchar(dolla)),
+           skipting =as.numeric(skipting),
+           skipting =ifelse(is.na(skipting),1,skipting*1),
+           dolla = substr(dolla,1,3),
+           stod = substr(dolla,1,2),
+           Artal = 2017,
+           Nu = N*skipting) %>%
+    rename(id = dolla)
+  
+  
+  t2017 %>% 
+    group_by(stod) %>% 
+    summarise(
+      Nn = total_abundance(count = N),
+      S = species_richness(taxon = Flokkun, count = N),
+      D = margalef(taxon = Flokkun, count = N),
+      SN = rygg(taxon = Flokkun, count = N),
+      SNa = rygg(taxon = Flokkun, count = N, adjusted = TRUE),
+      H = shannon(taxon = Flokkun, count = N),
+      AMBI=ambi(taxon = Flokkun, count = N)
+    )
+  
+  
+  
+  ########## Heild
+  
+  allartalningar <- rbind(t2013,t2014,t2015,gogn,t2017)
+  
+  remove_list <- paste(c("—Ssekkt",
+                         "Foraminifera",
+                         "Götungar",
+                         "Harpacticoida",
+                         "Hydrozoa",
+                         "Lirfur",
+                         "Skordýr",
+                         "Ranaormur",
+                         "Lirfurogdrasl",
+                         "Bandormur",
+                         "Lirfa",
+                         "Skeljar",
+                         "Óþekkt",
+                         "Rækjulirfa",
+                         "Nematoda",
+                         "Ostracoda",
+                         "ungv.",
+                         "Copepoda sp",
+                         "Möttuldýr",
+                         "Möttuldýr TUNICATA EÐA FLEIRI?",
+                         "Óþekkt",
+                         "Ranaormur",
+                         "Skeljar",
+                         "Skordýr"
+                         
+                         
+  ), collapse = '|')
+  
+  # annað:  
+  allartalningar$Flokkun <- lapply(allartalningar$Flokkun, function(x) trimws(x))
+  allartalningar$Flokkun <- sapply(allartalningar$Flokkun, function(x) gsub("\\ kemur líka Heteromastus filiformis|\\ m.|\\ Sipunculidea/|\\.|\\ TUNICATA EÐA FLEIRI?|\\ lirfur|\\ nýsestir|\\ ungv|\\ juv|\\ sp|\\(p)|\\/.*","",x))
+  kemur líka Heteromastus filiformis
+  nýsestir
+  m.
+  ungv.
+  
+  remove_ind <- lapply(strsplit(remove_list , "\\|")[[1]] , \(x) grep(x , allartalningar$Flokkun , fixed = T)) |> 
+    unlist() |> 
+    unique()
+  allartalningar <- allartalningar[-remove_ind,]
+  
+  
+  
+  
+  
+  tafla <- geggjad %>% 
+    filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
+    ddply(.(Artal, stod),summarise, Nn = total_abundance(count = N),
+          S = species_richness(taxon = Flokkun, count = N),
+          D = margalef(taxon = Flokkun, count = N),
+          SN = rygg(taxon = Flokkun, count = N),
+          SNa = rygg(taxon = Flokkun, count = N, adjusted = TRUE),
+          H = shannon(taxon = Flokkun, count = N),
+          AMBI=ambi(taxon = Flokkun, count = N)) %>% 
+    pivot_longer(!c(Artal,stod,Nn),names_to = "index", values_to = "Skor")
+
+  
+  
+  
+  ###myndir
+  #litir <- colorRampPalette(c('#045579', 'white','#d75f07','seashell','#069acc'))
+  litir <-  colorRampPalette(c("red","blue"),bias=.1,space="rgb")
+  tafla %>% 
+    ggplot(aes(x = Artal, y = Nn)) +
+    geom_bar(aes(fill = stod), stat = "identity", color="black", size =1,position="dodge")  +
+    xlab("") + labs(fill = "", title = "Landanir í Húnaflóa 2022", caption = "(Gögn fengin af vef Fiskistofu (fiskistofa.is))") +
+    theme_minimal() +
+    scale_fill_manual(values = litir(12)) +
+    scale_y_continuous(labels = scales::label_dollar(prefix = "", suffix = " \nTonn"))
+
+  
+  ggplot(tafla,                    # Einfaldir punktar með línum
+         aes(x = Artal,
+             y = score,
+             col = stod)) +
+    geom_line() +
+    theme_classic() +
+    theme(strip.background = element_blank()) +
+    ggh4x::facet_grid2( ~ index, scales = "free_y", independent = "y") +
+    geom_point(colour="black", shape=21, size = 4,
+               aes(fill=stod)) +
+    labs(title = "Fjölbreytileikastuðlar", caption = "(Botndýr í Kolgrafafirði 2013-2017)")
+  
+  
+  
+  
+  
+
+  B <- list()
+  for (i in unique(DF$Flokkun)) {
+  A[i] <- try(wm_name2id(name = i) )
+  B[[i]] <- tidyr::nest(wm_classification(A[[1]]))
+  }
+  B
+  B[[1]][[1]]
+  
+    DF %>% nest(DF =wm_name2id(name = "acarina") %>% 
+                   wm_classification())
+  
+#  APHIA ID <–> name
+  wm_name2id(name = "Acarina") %>% 
+    wm_classification()
+  #  APHIA ID <–> name
+  wm_name2id(name = "Platanista gangetica") %>% 
+    wm_classification()
+  
+  
+  
+  ifelse(is.integer(try(wm_name2id(name = "Platanista+gangetica")), ) 
+  
+  
+         DF <- df #%>% nest(data = c(id,N,Artal,skipting,stod,Nu))
+         DF$Flokkun <- sapply(DF$Flokkun, function(x) gsub("\\ Sipunculidea/|\\.|\\ TUNICATA EÐA FLEIRI?|\\ lirfur|\\ nýsestir|\\ ungv|\\ sp|\\(p)|\\/.*","",x)) #Laga heitin. Eykur benthos::is_accepted(taxon = Flokkun) úr 432 í 522
+         
+         A <- c()
+        
+         for (i in unique(DF$Flokkun)) {
+           A[i] <- try(wm_name2id(name = i) )
+         }
+         A <- as.data.frame(A)
+         A$flokkun <- row.names(A)
+         
+         DF <- merge(DF,A, by.x="Flokkun", by.y="flokkun")
+         DF$worms <- as.integer(as.character(DF$A))
+         DFekkina <- DF[!is.na(DF$worms),]
+         B <- list()
+         for (i in 1:length(DFekkina$worms)) {print(i)
+           B[[i]] <-  wm_classification(DFekkina$worms[i])
+         }
+         df_list <- lapply(1:length(B), 
+                           function(x) (pivot_wider(B[[x]][-1], names_from = rank, values_from = scientificname)))
+         
+         rass <- bind_rows(df_list)
+         #print(rass,n=50)
+         geggjad <- cbind(rass,DFekkina)
+         
+         
+         
+         
+         DF[is.na(DF$worms),]
+         
+         
+         
+         
+         
+         
+         
+gogn <- geggjad %>% 
+ filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
+ mutate(Artal = factor(Artal)) %>% 
+ ddply(.(Artal,stod,Flokkun),summarise, N=sum(Nu)) %>% 
+ pivot_wider(names_from = stod, values_from = N)
+
+BBIlisti <- list()
+BBIastand <- list()
+for (i in unique(gogn$Artal)) {
+  my_BBI <- gogn %>% filter(Artal %in% c(i)) %>%
+    select(-Artal) %>%
+    BBI()
+# calculating nEQR values and ecological quality status
+BBIlisti[[i]] <- as.data.frame(cbind(my_BBI$BBI, Artal=i))
+BBIastand[[i]] <- my_BBI$BBIclass
+#my_nEQR <- nEQR(my_BBI$BBI) 
+}
+
+
+
+
+
+
+
+
+
+
+p <- ggplot()
+for (i in 1:5) p <- p + geom_point(data=BBIlisti[[i]], aes(Artal,AMBI))
+p
+#
+
+
+
+
+pl <- Reduce(f = function(p, d) p + geom_point(data=d, aes(AMBI,Artal)), 
+             x = BBIlisti, init = ggplot(), accumulate = TRUE)
+
+p <- ggplot()
+
+plot <- function(df){
+  p <- p + geom_line(data=df, aes(AMBI,Artal))
+}
+
+lapply(BBIlisti, plot)
+
+p
+
+rass <- do.call(rbind,nEQR)
+mm <- as.matrix(rass, ncol = 7)
+
+heatmap.2(x = mm, Rowv = FALSE, Colv = FALSE, dendrogram = "none",
+          cellnote = mm, notecol = "black", notecex = 2,
+          trace = "none", key = FALSE, margins = c(7, 11))
+>>>>>>> dc1a0a0fd3705911a60dcba78ad7c842e50391b0

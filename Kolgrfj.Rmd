@@ -1,0 +1,311 @@
+---
+title: "Næstu skref"
+author: "Valtýr"
+date: "2023-01-03"
+output: html_document
+---
+
+Nú hafa tegundir að mestu verið greindar úr botndýrasýnum í Kolgrafafirði frá árunum 2013-2017. Aðeins skeljar og spionidae-ormar í einstaka stöðvum urðu eftir en GVH greindi spionida ekki nánar. Þessi einstöku atriði eru:
+
+
+```{r pakkar, message=FALSE, warning=FALSE, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+Rpakkar <- c("tidyverse","benthos","worrms", "plyr", "data.table", "DT", "dplyr", "here", "BBI", "ggh4x")
+pacman::p_load(Rpakkar, character.only = TRUE)
+
+#Sys.setlocale("LC_ALL", "Icelandic") # `Sys.setlocale` er hér fyrir íslenskar dagsetningar.
+```
+
+
+```{r include=FALSE}
+listi <- tibble(Atridi = c("skeljar", "Priapulus camelus", "Terebellides benedi", "Cardidae juv", "Musculus"),
+       Artal = c(2016,2014,2017,2015,2017),
+       Dollur= c(list(c("A76")), list(c("B5A","B56","E4A")), list(c("B5A", "B5B", "C4C")), list(c("B5A", "C4B")), list(c("E3B"))
+                     ))
+knitr::kable(listi)
+```
+
+|Atridi              | Artal|Dollur        |
+|:-------------------|-----:|:-------------|
+|skeljar             |  2016|A76           |
+|Priapulus camelus   |  2014|B5A, B56, E4A |
+|Terebellides benedi |  2017|B5A, B5B, C4C |
+|Cardidae juv        |  2015|B5A, C4B      |
+|Musculus            |  2017|E3B           |
+
+```{r innlestur, message=FALSE, warning=FALSE, include=FALSE}
+
+##2013
+t2013 <- read.csv(here::here("Kolgr2013",list.files(here::here("Kolgr2013"), pattern = "csv")),encoding="latin1")[ ,-c(1,2)] %>%
+  pivot_longer(!Flokkun, names_to = "dolla", values_to = "N") %>% 
+  na.omit(N) %>% 
+  mutate(Artal = 2013)
+#t2013 <- t2013[t2013$stod != "U1" & t2013$stod != "U2",] #Utanbrúarstöðvarnar teknar út 
+
+##2014
+t2014 <- read.csv(here::here("Kolgr2014",list.files(here::here("Kolgr2014"))),encoding="latin1") %>%
+  pivot_longer(!Flokkun, names_to = "dolla", values_to = "N") %>% 
+  na.omit(N) %>% 
+  mutate(Artal = 2014)
+
+##2015
+t2015 <- read.csv(here::here("Kolgr2015",list.files(here::here("Kolgr2015"), pattern = "csv")),encoding="latin1") %>%
+  pivot_longer(!Flokkun, names_to = "dolla", values_to = "N") %>% 
+  na.omit(N) %>% 
+  mutate(Artal = 2015)
+
+##2017
+t2017 <- read.csv(here::here("Kolgr2017",list.files(here::here("Kolgr2017"), pattern = "csv")),encoding="latin1") %>%
+  pivot_longer(!Flokkun, names_to = "dolla", values_to = "N") %>% 
+  na.omit(N) %>% 
+  mutate(Artal = 2017)
+
+GVH <- rbind(t2013,t2014,t2015,t2017) %>% 
+   mutate(skipting = substr(dolla, nchar(dolla), nchar(dolla))) %>% #ná í súbbun og setja í sér dálk
+    mutate(skipting = case_when(grepl("[[:alpha:]]",skipting) ~ 1,
+                                TRUE ~ as.numeric(as.character(skipting))),
+           dolla = substr(dolla,1,3),
+           stod = substr(dolla,1,2),
+           Nu = N*skipting) %>%
+  dplyr::rename(id = dolla)
+
+##2016
+dataPath <- here::here("Kolgr2016")
+datafiles <- list.files(path=dataPath, pattern = "csv", full.names = TRUE, recursive = T)
+datafiles <- datafiles[-19]
+classes <- c("character","integer", "factor", "character")
+
+load_data <- function(dataPath, classes) { 
+  tables <- lapply(datafiles, read.csv, colClasses=classes, na.strings=c("NA", ""))
+  names(tables) <- substr(dirname( datafiles ),56,58)
+  data.table::rbindlist(tables, idcol = "id" )
+}
+
+data <- load_data(dataPath, classes)
+
+data$stod <- substr(data$id,1,2)
+data$skipting <- gsub("¼|1/4|0.25",4,data$skipting) %>% 
+  as.numeric() # laga misræmi í skráningu á súbbuninni
+#data$Flokkun <- sapply(data$Flokkun, function(x) gsub("\\.|\\ sp|\\(p)|\\/.*","",x)) #Laga heitin. Eykur benthos::is_accepted(taxon = Flokkun) úr 432 í 522
+#data$Flokkun <- str_to_sentence(data$Flokkun) #Stór stafur í byrjun heitis
+data <- data[!is.na(data$N) & !is.na(data$Flokkun) & data$N!="NA",]  
+gogn <- as.data.frame(data) %>% 
+  ddply(.(Flokkun,id,N,skipting,stod),summarize, Artal=2016, Nu=sum(N*skipting)) %>% 
+  select( Flokkun,id,N,Artal,skipting,stod,Nu)
+
+########## Heild
+allartalningar <- rbind(GVH,gogn)
+#write.csv(allartalningar, "allartalningar.csv",na="", row.names = F, fileEncoding = "latin1")
+#sapply(split(allartalningar, allartalningar$Artal) , function(x) dim(x))
+```
+
+```{r hreinsun, message=FALSE, warning=FALSE, include=FALSE}
+
+df <- allartalningar
+df$Flokkun <-   sapply(allartalningar$Flokkun, function(x) gsub("\\ kemur líka Heteromastus filiformis|\\ Sipunculidea/|\\.|\\ TUNICATA EÐA FLEIRI?|\\ nýsestir|\\ ungviði|\\ ungv.|\\ ungv|\\ juv|\\ sp.|\\ sp|\\ ath","",x)) #Laga heitin. Eykur benthos::is_accepted(taxon = Flokkun) úr 432 í 522
+
+df <- df %>% mutate(Flokkun = case_when(
+  str_detect(Flokkun, "Campanulariidae sp") ~ "Campanulariidae",
+  str_detect(Flokkun, "Cycloterus lumpus") ~ "Cyclopterus lumpus",
+  str_detect(Flokkun, "Götungar") ~ "Foraminifera",
+  str_detect(Flokkun, "Möttuldýr?" ) ~ "Tunicata",
+  str_detect(Flokkun, "Nephtiydae" ) ~ "Nephtyidae",
+  str_detect(Flokkun, "Phyllodoce maculata" ) ~ "Phyllodoce maculata",
+  str_detect(Flokkun, "Polynoida" ) ~ "Polynoidae",
+  str_detect(Flokkun, "Sternapsis scutata") ~ "Sternaspis scutata",
+  str_detect(Flokkun, "Terribellides stroemi") ~ "Terebellides stroemii",
+  str_detect(Flokkun, "Tubificoides benedict") ~ "Tubificoides benedii",
+  str_detect(Flokkun,"Clinocardium cillaturn" ) ~ "Ciliatocardium ciliatum ciliatum",
+  str_detect(Flokkun,"Gattyana cirrosa" ) ~ "Gattyana cirrhosa",
+  str_detect(Flokkun,"Möttuldýr" ) ~ "Tunicata",
+  str_detect(Flokkun,"Nemertea=nemertina" ) ~ "Nemertea",
+  str_detect(Flokkun,"Nudibranch"  ) ~ "Nudibranchia",
+  str_detect(Flokkun,"Polydora"  ) ~ "Spionidae", #mjög margir
+  str_detect(Flokkun,"Priapulus candatus" ) ~ "Priapulus caudatus",
+  str_detect(Flokkun,"Sipunculidea/Sipunculidae") ~ "Sipunculidae",
+  str_detect(Flokkun,"Terribellides kozloffi" ) ~ "Terebellides",
+  str_detect(Flokkun,"Tubificoides benedi" ) ~ "Tubificoides benedii",
+  str_detect(Flokkun,"Astartidae borealis" ) ~ "Astarte borealis",
+  str_detect(Flokkun,"Cerastoderma ovale") ~ "Parvicardium pinnulatum",
+  str_detect(Flokkun,"Exogone verrugera") ~ "Exogone verugera",
+  str_detect(Flokkun,"Nuculana tenuis" ) ~ "Ennucula tenuis",
+  str_detect(Flokkun,"Opistobranchia") ~ "Opisthobranchia",
+  str_detect(Flokkun,"Serripes groenlandica") ~ "Serripes groenlandicus",
+  str_detect(Flokkun,"Tubicoides kozloffi" ) ~ "Tubificoides kozloffi",
+  str_detect(Flokkun,"Cardidae"   ) ~ "Cardiidae",
+  str_detect(Flokkun,"Henricia sanguinolenta") ~ "Henricia sanguinolenta", # kannski setja id 123974 í DF$worms
+  str_detect(Flokkun,"Macoma calcaria" ) ~ "Macoma calcarea",
+  str_detect(Flokkun,"Musculus"   ) ~ "Tellina", # id 138533 
+  str_detect(Flokkun,"Ophryotrocha cf Cosmetandra") ~ "Ophryotrocha cosmetandra",
+  str_detect(Flokkun,"Praxillella m"  ) ~ "Praxillella", # id 129360  
+  str_detect(Flokkun,"Ranaormur"  ) ~ "Nemertea",
+  str_detect(Flokkun,"Terebellidae"  ) ~ "Terebellidae", # id 982
+  str_detect(Flokkun,"Tubicoides benedi" ) ~ "Tubificoides benedii",
+#  str_detect(Flokkun,"Corophium bonellii" ) ~ "Crassicorophium bonellii", #á eftir að keyra þetta einu sinni enn með þessum
+  TRUE ~ Flokkun
+))
+
+```
+
+```{r hreinsunB, message=FALSE, warning=FALSE, include=FALSE}
+
+  remove_list <- paste(c("—Ssekkt",
+                         "—ßekkt",
+                         #"Foraminifera",
+                         "Götungar",
+                         #"Harpacticoida",
+                         #"Hydrozoa",
+                         "Lirfur",
+                         "lirfur",
+                         "lirfa",
+                         "Skordýr",
+                         "Ranaormur",
+                         "Lirfurogdrasl",
+                         "Bandormur",
+                         "Lirfa",
+                         "egg",
+                         "Óþekkt",
+                         #"Rækjulirfa",
+                         "Nematoda",
+                         #"Nemertea",
+                         "Möttuldýr?",
+                         "Porifera",
+                         #"rækjulirfa",
+                         "Plerugoniumnosissum",
+                         "Priapulus camelus",
+                         "Terebellides benedi",
+                         "Plergoniumnosum",
+                         "egg/lirfur",
+                         "Ostracoda"
+                         ), collapse = '|')
+  
+  
+  remove_ind <- lapply(strsplit(remove_list , "\\|")[[1]] , \(x) grep(x , df$Flokkun , fixed = T)) |> 
+    unlist() |> 
+    unique()
+  df <- df[-remove_ind,]  #Öll heiti í remove_list tekin úr 'allartalningar' og sett í df
+
+         A <- c()
+        
+         for (i in unique(df$Flokkun)) {
+           A[i] <- try(wm_name2id(name = i) )
+         }
+         A <- as.data.frame(A)
+         A$flokkun <- row.names(A)
+         DF <- merge(df,A, by.x="Flokkun", by.y="flokkun")
+         DF$worms <- as.integer(as.character(DF$A)) #Öll heiti í remove_list tekin úr 'allartalningar' og sett í df
+         
+         
+         unique(DF$Flokkun[is.na(DF$worms)]) # "Skoða óvirk heiti"
+        
+
+DF <- DF %>% mutate(worms = case_when(
+ str_detect(Flokkun, "Oligochaeta"  ) ~ as.integer(2036),
+ str_detect(Flokkun, "rækjulirfa" ) ~ as.integer(106789),
+ str_detect(Flokkun, "Skeljar"  ) ~ as.integer(105),
+ str_detect(Flokkun,"Spio"  ) ~ as.integer(129625),
+ str_detect(Flokkun,"Mediomastus filiformis") ~ as.integer(335480),
+ str_detect(Flokkun,"Mya"   ) ~ as.integer(138211),
+# str_detect(Flokkun,"Plerugoniumnosissum" ) ~ "Plerugonium spinosissum" #gsub tók út sp :\ en finnst annars ekkert
+# str_detect(Flokkun,"Priapulus camelus") ~ Kíkja á B5A og C úr 2014
+ str_detect(Flokkun,"spio"  ) ~ as.integer(129625),
+# str_detect(Flokkun,"Terebellides benedi" ) ~ # Kíkja í sýnin
+# str_detect(Flokkun,"—ßekkt"  ) ~
+# str_detect(Flokkun,"egg/lirfur"  ) ~
+ str_detect(Flokkun,"Nepthys"  ) ~ as.integer(129370), 
+# str_detect(Flokkun,"Plergoniumnosum" ) ~ "Plergonium spinosum"
+# str_detect(Flokkun,"Skordýr"  ) ~ 
+# str_detect(Flokkun, "lirfurOgDrasl" ) ~,
+ str_detect(Flokkun,"Campanulariidae sp"  ) ~ as.integer(1606),
+str_detect(Flokkun, "Henricia sanguinolenta" ) ~ as.integer(129374),
+str_detect(Flokkun, "Phyllodoce maculata" ) ~ as.integer(334510),
+str_detect(Flokkun, "Terebellidae" ) ~ as.integer(982),
+ TRUE ~ worms
+))
+
+
+# Ekki gleyma Corophium bonellii ...crassacorophium eitthvað
+```
+
+```{r taxa, message=FALSE, warning=FALSE, include=FALSE}
+
+ DFekkina <- DF[!is.na(DF$worms),]
+         B <- list()
+         for (i in 1:length(DFekkina$worms)) {
+           B[[i]] <-  wm_classification(DFekkina$worms[i])
+         }
+         df_list <- lapply(1:length(B), 
+                           function(x) (pivot_wider(B[[x]][-1], names_from = rank, values_from = scientificname)))
+         
+         rass <- bind_rows(df_list)
+         #print(rass,n=50)
+         geggjad <- cbind(rass,DFekkina)
+         
+#write.csv(geggjad[,1:34], "KolgrTaxa.csv",na="", row.names = F, fileEncoding = "latin1")
+#rass <- ddply(geggjad,.(Class),summarise,N=sum(N))
+#pie(rass$N,rass$Phylum)
+
+```
+
+## Including Plots
+
+Samkvæmt skýrslu Hafró frá 2022 „Vistfræðileg viðmið við ástandsflokkun strandsjávar“ er „gæðavísirinn NQI1 (Norwegian Quality Index 1, Rygg 2006) talinn henta best við mat á hryggleysingjum á mjúkum botni í strandsjó við Ísland og því er mælt með notkun hans við ástandsflokkun strandsjávar.“
+
+```{r Benthosindexar, echo=FALSE}
+
+  tafla <- geggjad %>% 
+    filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
+    ddply(.(Artal, stod),summarise, Nn = total_abundance(count = N),
+          S = species_richness(taxon = Flokkun, count = N),
+          D_Margalef = margalef(taxon = Flokkun, count = N),
+          SN_Rygg = rygg(taxon = Flokkun, count = N),
+          SNa_Rygg = rygg(taxon = Flokkun, count = N, adjusted = TRUE),
+          H = shannon(taxon = Flokkun, count = N),
+          AMBI=ambi(taxon = Flokkun, count = N)) %>% 
+    pivot_longer(!c(Artal,stod,Nn),names_to = "index", values_to = "Skor")
+
+  
+ggplot(tafla,                    # Einfaldir punktar með línum
+         aes(x = Artal,
+             y = Skor,
+             col = stod)) +
+    geom_line() +
+    #theme_classic() +
+    #theme(strip.background = element_blank()) +
+    ggh4x::facet_grid2( ~ index, scales = "free_y", independent = "y") +
+    geom_point(colour="black", shape=21, size = 4,
+               aes(fill=stod)) +
+    labs(title = "Fjölbreytileikastuðlar", caption = "(Botndýr í Kolgrafafirði 2013-2017)")
+
+```
+
+ 
+```{r BBIindexar, echo=FALSE}
+gogn <- geggjad %>% 
+ filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
+ mutate(Artal = factor(Artal)) %>% 
+ ddply(.(Artal,stod,Flokkun),summarise, N=sum(Nu)) %>% 
+ pivot_wider(names_from = stod, values_from = N)
+
+BBIlisti <- list()
+BBIastand <- list()
+nEQR <- list()
+for (i in unique(gogn$Artal)) {
+  my_BBI <- gogn %>% filter(Artal %in% c(i)) %>%
+    select(-Artal) %>%
+    BBI()
+# calculating nEQR values and ecological quality status
+BBIlisti[[i]] <- as.data.frame(cbind(my_BBI$BBI, Artal=i))
+BBIastand[[i]] <- my_BBI$BBIclass
+nEQR[[i]] <- as.data.frame(nEQR(my_BBI$BBI)[1])
+}
+
+rass <- do.call(rbind,nEQR)
+mm <- as.matrix(rass, ncol = 7)
+
+heatmap.2(x = mm, Rowv = FALSE, Colv = FALSE, dendrogram = "none",
+          cellnote = mm, notecol = "black", notecex = .51,
+          trace = "none", key = FALSE)
+```
+
