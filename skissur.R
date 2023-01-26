@@ -1,3 +1,41 @@
+##2016
+dataPath <- here::here("Kolgr2016")
+datafiles <- list.files(path=dataPath, pattern = "csv", full.names = TRUE, recursive = T)
+#datafiles <- datafiles[-19] 
+classes <- c("character","integer", "factor", "character")
+
+for (i in 1:2) {tables[i] <- lapply(datafiles[i], read.csv, colClasses=classes, na.strings=c("NA", ""))}
+
+
+load_data <- function(dataPath, classes) { 
+  tables <- lapply(datafiles, read.csv, colClasses=classes, na.strings=c("NA", ""))
+  names(tables) <- substr(dirname( datafiles ),56,58)
+  data.table::rbindlist(tables, idcol = "id" )
+}
+
+data <- load_data(dataPath, classes)
+
+data$stod <- substr(data$id,1,2)
+data$skipting <- gsub("¼|1/4|0.25",4,data$skipting) %>% 
+  as.numeric() # laga misræmi í skráningu á súbbuninni
+#data$Flokkun <- sapply(data$Flokkun, function(x) gsub("\\.|\\ sp|\\(p)|\\/.*","",x)) #Laga heitin. Eykur benthos::is_accepted(taxon = Flokkun) úr 432 í 522
+#data$Flokkun <- str_to_sentence(data$Flokkun) #Stór stafur í byrjun heitis
+data <- data[!is.na(data$N) & !is.na(data$Flokkun) & data$N!="NA",]  
+gogn <- as.data.frame(data) %>% 
+  ddply(.(Flokkun,id,N,skipting,stod),summarize, Artal=2016, Nu=sum(N*skipting)) %>% 
+  select( Flokkun,id,N,Artal,skipting,stod,Nu)
+
+
+
+
+
+
+
+
+
+
+
+
 library(DT)
 library(tidyverse)
 
@@ -735,3 +773,200 @@ mm <- as.matrix(rass, ncol = 7)
 heatmap.2(x = mm, Rowv = FALSE, Colv = FALSE, dendrogram = "none",
           cellnote = mm, notecol = "black", notecex = 2,
           trace = "none", key = FALSE, margins = c(7, 11))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+load("./meistaraverkefni/meistaraverkefni/úrvinnsla/allt13.Rda") #sa
+logi<-sapply(sa,as.logical)
+fjoldteg99<-c(c(20,1,29,33,30,42,28),"","")
+fjoldteg13<-rowSums(logi)
+fjol<-rbind(fjoldteg99,fjoldteg13)
+fjol<-apply(fjol,2,as.numeric)
+rownames(fjol)<-c("1999","2013")
+colnames(fjol)<-c("A7","B0","B5","B8","C4","E3","E4","U1","U2")
+
+
+list.dirs("./meistaraverkefni/", pattern="csv") #sa
+
+
+
+
+agnar<-read_csv("./meistaraverkefni/meistaraverkefni/taflaAgnar.csv" ) 
+agnar<-filter(agnar,rowSums(agnar[,2:7], na.rm = TRUE)!= 0) %>% 
+  replace(is.na(.), 0) %>% 
+  pivot_longer(cols = !Flokkun, names_to = 'stod', values_to = 'N') %>% 
+  mutate(Artal=1999, skipting=1, id=stod,Nu=N) %>% 
+  select(Flokkun,id,N,Artal,skipting,stod,Nu)
+  
+  
+  filter(rowSums() != 0)
+
+agnar[rowSums(agnar)!=0,]
+
+
+
+
+
+library(PDE)
+
+
+f <- file.path("./skjol/lesefni/tafla.pdf")
+area <- tabulizer::locate_areas(f)
+tafla <- tabulizer::extract_tables(f)
+
+  as.data.frame() %>%
+  janitor::row_to_names(row_number = 1) 
+
+# Taflan í greininni (mynd 2) er höfð á tveggja dálka formi, svo hún sé breiðari því þá er greinin læsilegri. Svona lagað skapar örlítil vandamál. Tveir "data frames" gerðir til að leysa það. 
+
+one <- dfs[,1:5 ]
+two <- dfs[,6:10 ]
+
+# Þeir eru svo bundnir saman en dálkurinn T er færður inn handvirkt því mínusmerkið var eitthvað einkennilegt sem gerði mér ekki kleift að breyta þessu úr "character" yfir í "double" eða frá texta yfir í tölur.
+
+dfs <- bind_rows(one, two) %>%
+  slice(-c(1, 24, 46)) %>% 
+  readr::type_convert() %>% 
+  mutate(T=as.double(c("6.98","6.93","6.98","5.89","6.82","6.35","5.93","6.16","1.18","5.95","5.34","0.43","0.09","5.66","2.56","0.21","5.14","2.32","0.09","4.75","4.04","2.98","1.45","-0.22","4.05","2.32","-0.16","3.88","2.55","-0.46","4.28","2.29","-0.19","7.24","7.53","6.74","7.49","7.04","6.74","7.87","7.62","6.86","7.73"))) %>% 
+  ddply(.(Current),summarize,T=mean(T))
+
+
+Aggi<-read.csv2("./meistaraverkefni/meistaraverkefni/teglisti99allt.csv")
+Aggi[is.na(Aggi)] <- 0
+tAggi<-t(Aggi[-c(1,4,6,7,10:12),2:31]) 
+Agnar<-matrix(unname(tAggi),nrow=30,byrow=TRUE,dimnames=list(row.names(tAggi),Aggi$X[-c(1,4,6,7,10:12)]))
+
+library(tidyverse)
+library(magick)
+library(tesseract)
+
+
+mynd <- file.path("./skjol/lesefni/tafla.html/page1.png")
+raw_img <- image_read(f)
+raw_img %>% 
+  image_crop(geometry_area(1200, 1600, 110, 190)) %>%  
+  image_quantize(colorspace = 'gray') %>%
+  image_transparent("white", fuzz=22) %>% 
+  image_background("white") %>%
+  image_threshold() %>% 
+  #image_ggplot()
+  ocr()
+
+
+
+
+
+scrape_fun <- function(url_in, crop_left, crop_top){
+  raw_img <- image_read(url_in) %>% 
+    image_quantize(colorspace = 'gray') %>%
+    image_transparent("white", fuzz=22) %>% 
+    image_background("white") %>%
+    image_threshold() %>% 
+    image_crop(geometry_area(0, 0, crop_left, crop_top)) 
+  
+  image_ocr(raw_img) %>% 
+    str_c() %>% 
+    str_split(pattern = "\n") %>% 
+    unlist() %>%
+    tibble(data = .) %>% 
+    filter(str_length(data) >= 2) %>% 
+    separate(
+      data, 
+      into = c("player", "position", "team", "sacks"), 
+      sep = c(" \\(| - |\\) ")
+    ) %>% 
+    mutate(sacks = as.double(sacks)) %>% 
+    mutate(sacks = if_else(sacks >= 20, sacks/10, sacks))
+}
+
+
+
+
+
+
+
+gogn <- geggjad %>% 
+  filter(stod %in% c("A7", "B5", "B8","C4", "E3", "E4")) %>% 
+  mutate(Artal = factor(Artal)) %>% 
+  ddply(.(Artal,stod, Flokkun),summarise, N=sum(Nu)) %>% 
+  #mutate(N = case_when(Artal != 1999 ~ round(N/(3*0.04)),
+  #                      TRUE ~ round(N/0.0225))) %>% 
+  pivot_wider(names_from = c(stod,Artal), values_from = N) %>% 
+  arrange(Flokkun)
+
+write_csv(gogn,"ArStodFjfermetri.csv", na="")
+
+
+
+
+
+f <- file.path("./skjol/lesefni/tafla.pdf")
+
+
+
+img <- image_read("./skjol/lesefni/tafla.jpg") %>%
+  image_morphology(method = "Thinning", kernel = "Rectangle:30x1+0+0^<") #%>%
+  #image_negate() #%>%
+  #image_ocr()
+
+img
+
+
+
+
+
+
+
+
+
+# byrja á að deila með flatartaki
+tegArtal <- ddply(KolgrTaxa,.(Artal,Flokkun),summarise, N=sum(N)) %>% pivot_wider(names_from = Artal, values_from = N)
+
+df <- ddply(KolgrTaxa,.(Flokkun,Artal,stod), summarise, Fjm=sum(Nfm)) %>% 
+  filter(stod != U1 & stod != U2 & stod != B0)
+  pivot_wider(names_from = c(stod,Artal), values_from = Fjm)
+  
+  
+  KolgrTaxa <- read_csv("KolgrTaxa.csv", na = "empty") %>% 
+    mutate(Nfm= case_when(
+      Artal != 1999 ~ round(Nu/(3*0.04)),
+      TRUE ~ round(Nu/0.0225)
+    ))
+  
+  df <- KolgrTaxa %>% 
+    mutate(Artal = factor(Artal)) %>% 
+    filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3") & Artal==1999) %>% 
+    ddply(.(Phylum, Class, Flokkun, stod),summarise, Nfm=sum(Nfm)) %>% 
+    pivot_wider(names_from = c(stod), values_from = Nfm) %>% 
+    arrange(Phylum,Class)
+  df <- df[, c('Phylum', 'Class', 'Flokkun', 'A7','B5','B8','C4','E3','E4')]  
+
+   write.xlsx(df, file = "Fjoldi_a_fermetra.xlsx",
+             sheetName = "1999", showNA = FALSE, append = FALSE)
+
+for (i in 2013:2017) {
+  df <- KolgrTaxa %>% 
+    mutate(Artal = factor(Artal)) %>% 
+    filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3") & Artal==i) %>% 
+    ddply(.(Phylum, Class, Flokkun, stod),summarise, Nfm=sum(Nfm)) %>% 
+    pivot_wider(names_from = c(stod), values_from = Nfm) %>% 
+    arrange(Phylum,Class)
+  df <- df[, c('Phylum','Class', 'Flokkun', 'A7','B5','B8','C4','E3','E4')]  
+  write.xlsx(df, file = "Fjoldi_a_fermetra.xlsx",
+             sheetName=as.character(i), showNA = F, append=TRUE)
+}
+  
