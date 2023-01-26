@@ -390,6 +390,9 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
     geom_pointrange(aes(ymin=len-sd, ymax=len+sd))
   
   
+<<<<<<< HEAD
+  MedAmbi <- gogn %>%
+=======
   library(plyr)
   library(benthos)
   library(tidyverse)
@@ -413,6 +416,7 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
  
     
   gogn %>%
+>>>>>>> dc1a0a0fd3705911a60dcba78ad7c842e50391b0
     mutate(HAS_GROUP = has_ambi(taxon = Flokkun))
   
   gogn %>%
@@ -430,12 +434,13 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
     group_by(stod) %>% 
     summarise(
       Nn = total_abundance(count = N),
-      S = species_richness(taxon = Flokkun, count = N),
-      D = margalef(taxon = Flokkun, count = N),
-      SN = rygg(taxon = Flokkun, count = N),
-      SNa = rygg(taxon = Flokkun, count = N, adjusted = TRUE),
-      H = shannon(taxon = Flokkun, count = N),
-      AMBI=ambi(taxon = Flokkun, count = N)
+      Nu = total_abundance(count = alls),
+      S = species_richness(taxon = Flokkun, count = alls),
+      D = margalef(taxon = Flokkun, count = alls),
+      SN = rygg(taxon = Flokkun, count = alls),
+      SNa = rygg(taxon = Flokkun, count = alls, adjusted = TRUE),
+      H = shannon(taxon = Flokkun, count = alls),
+      AMBI=ambi(taxon = Flokkun, count = alls)
     )
   
   
@@ -484,6 +489,12 @@ tafla[i,max.col(!is.na(tafla[i,]),'last')]
   
   #### 2013
   
+<<<<<<< HEAD
+  PT$skipting <- gsub("¼|1/4|0.25",4,PT$skipting)
+  PT <- PT[!is.na(N),]
+  PT$alls <- PT$N*as.integer(PT$skipting)
+  DT::datatable(PT)
+=======
   t2013 <- read.csv(here::here("Kolgr2013",list.files(here::here("Kolgr2013"), pattern = "csv")),encoding="latin1")[ ,-c(1,2)] %>%
     pivot_longer(!Flokkun, names_to = "dolla", values_to = "N") %>% 
     na.omit(N) %>% 
@@ -773,6 +784,7 @@ mm <- as.matrix(rass, ncol = 7)
 heatmap.2(x = mm, Rowv = FALSE, Colv = FALSE, dendrogram = "none",
           cellnote = mm, notecol = "black", notecex = 2,
           trace = "none", key = FALSE, margins = c(7, 11))
+<<<<<<< HEAD
 
 
 
@@ -970,3 +982,6 @@ for (i in 2013:2017) {
              sheetName=as.character(i), showNA = F, append=TRUE)
 }
   
+=======
+>>>>>>> dc1a0a0fd3705911a60dcba78ad7c842e50391b0
+>>>>>>> 6f33eb9cf7b3dd42358b66164f73a93b800f33bb
