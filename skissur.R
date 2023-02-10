@@ -985,3 +985,143 @@ for (i in 2013:2017) {
 =======
 >>>>>>> dc1a0a0fd3705911a60dcba78ad7c842e50391b0
 >>>>>>> 6f33eb9cf7b3dd42358b66164f73a93b800f33bb
+
+   
+   
+   
+   
+   
+   
+   KolgrTaxa <- read_csv("KolgrTaxa.csv", na = "empty") 
+   
+   df <- KolgrTaxa %>% 
+     mutate(Artal = factor(Artal)) %>% 
+     filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
+     ddply(.(Artal, stod,Flokkun),summarise, N=sum(Nfm)) %>% 
+     arrange(N)
+   
+
+   jorundur <- df %>% 
+     filter(!Flokkun %in% c("Copepoda","Collembola", "Cyclopterus lumpus")) %>% 
+     mutate(
+       Flokkun = case_when(
+         Artal == 1999 & Flokkun == "Ampharete acutifrons" ~ "Ampharetinae",
+         Artal == 1999 & Flokkun == "Bivalvia" ~ NA,
+         Artal == 2013 & Flokkun == "Harmothoe" ~ "Harmothoe extenuata",
+         Artal == 2013 & Flokkun == "Polynoidae" ~ "Harmothoe extenuata",
+         Artal == 2014 & Flokkun == "Praxillella" ~ "Praxillella praetermissa",
+         Artal == 2014 & Flokkun == "Syllidae" ~ "Syllis cornuta",
+         Artal == 2015 & Flokkun == "Syllidae" ~ "Syllis cornuta",
+         Artal == 2015 & Flokkun == "Mya" ~ "Mya arenaria",
+         Artal == 2015 & Flokkun == "Mytilidae" ~ "Mytilus edulis",
+         Artal == 2015 & Flokkun == "Bivalvia" ~ NA,
+         Artal == 2016 & Flokkun == "Ampharetidae" ~ "Amphitrite cirrata",
+         Artal == 2016 & Flokkun == "Aricidea" ~ "Aricidea suecica",
+         Artal == 2016 & Flokkun == "Capitellidae" ~ "Capitella capitata",
+         Artal == 2016 & Flokkun == "Cirratulidae" ~ "Cirratulus cirratus",
+         Artal == 2016 & Flokkun == "Cossuridae" ~ "Cossura longocirrata",
+         Artal == 2016 & Flokkun == "Nephtyidae" ~ "Nephtys",
+         Artal == 2016 & Flokkun == "Pectinariidae" ~ "Pectinaria koreni",
+         Artal == 2016 & Flokkun == "Phyllodocida" ~ "Phyllodoce maculata",
+         Artal == 2016 & Flokkun == "Spio" ~ "Spio filicornis",
+         Artal == 2016 & Flokkun == "Spionidae" ~ "Spio filicornis",
+         Artal == 2016 & Flokkun == "Syllidae" ~ "Syllis",
+         Artal == 2016 & Flokkun == "Cardiidae" ~ "Cardium",
+         Artal == 2016 & Flokkun == "Cardiidae" ~ "Cardium",
+         Artal == 2017 & Flokkun == "Mya" ~ "Mya arenaria",
+         Artal == 2017 & Flokkun == "Maldanidae" ~ "Praxillella praetermissa",
+       TRUE ~ Flokkun)) %>% 
+     drop_na() 
+   
+   
+   for (i in unique(jorundur$Artal)) {
+     
+    veganjorundur <- jorundur %>%
+     filter(Artal == i) %>% 
+     select(-Artal) %>% 
+      ddply(.(Flokkun,stod),summarise,N=sum(N)) %>% 
+     pivot_wider(names_from = c(Flokkun), values_from = N) %>% 
+      replace(is.na(.), 0) %>%
+      column_to_rownames(var="stod")
+   
+   
+   # library(vegan)
+   # #data(dune)
+   # ord <- decorana(veganjorundur)
+   # ord <- metaMDS(veganjorundur)
+   # plot(ord, type = "n")
+   # points(ord, display = "sites", cex = 0.8, pch=21, col="red", bg="yellow")
+   # text(ord, display = "spec", cex=0.7, col="blue")
+
+   # Euclidean distance
+   dist <- dist(veganjorundur , diag=TRUE)
+   
+   # Hierarchical Clustering with hclust
+   hc <- hclust(dist)
+   
+   # Plot the result
+   plot(hc, main = i)
+   }
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   #ungviði
+   
+   
+   
+   
+   remove_list <- paste(c(
+     "nýsestir",
+     "ungviði",
+     "ungv",
+     "ungv.",
+     "juv",
+     ".",
+     "ath"
+   ), collapse = '|') # Röðin skiptir ekki máli til dæmis "." á undan "sp." eða öfugt. Það eru jafn mörg tilfelli af "sp." í allartalningar$Flokkun þó svo "." sé á undan
+   
+   remove_ind <- lapply(strsplit(remove_list , "\\|")[[1]] , \(x) grep(x , geggjad$gamalt , fixed = T)) |> 
+     unlist() |> 
+     unique()
+   
+   
+   
+   ungvidi <- geggjad[remove_ind,] 
+   
+   ungv <- ddply(ungvidi,.(Flokkun,Artal),summarise, N =sum(Nu))
+   
+   
+   
+   Fjölþátta greining eingöngu 2013-2017
+   2. lumpa saman öllum stöðvum (sem við notuðum) Agnars í eina. 
+   3. 1999-2017
+   Bray-Curtis
+   Multi dimensional scaling 
+   (meginþáttagreiningu og fylgnigreiningu með reikniforritinu R (R Core Team, 2014;  Oksanen o. ., 2015))
+   Passa upp á að 1999 sé sambærileg m2 þegar skoðað er þéttleikabreytingar á tíma
+   Fjöldi teg á stög sé óháð flatarmáli
+   
+   # 1. Marine biology
+   # 2. Marine biology research
+   # 3. Marine pollution bullettin
+   
+   
+   
+   robot trex
+   stich
+   
+   
+   
