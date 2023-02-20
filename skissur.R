@@ -1,3 +1,51 @@
+gledi <- structure(list(ar = c(2013L, 2013L, 2013L, 2013L, 2013L, 2013L, 
+                               2014L, 2014L, 2014L, 2014L, 2014L, 2014L, 2015L, 2015L, 2015L, 
+                               2015L, 2015L, 2015L, 2016L, 2016L, 2016L, 2016L, 2016L, 2016L, 
+                               2017L, 2017L, 2017L, 2017L, 2017L, 2017L), stod = structure(c(1L, 
+                                                                                             2L, 3L, 4L, 5L, 6L, 1L, 2L, 3L, 4L, 5L, 6L, 1L, 2L, 3L, 4L, 5L, 
+                                                                                             6L, 1L, 2L, 3L, 4L, 5L, 6L, 1L, 2L, 3L, 4L, 5L, 6L), levels = c("A7", 
+                                                                                                                                                             "B5", "B8", "C4", "E3", "E4"), class = "factor"), tap = c(0.1815154141, 
+                                                                                                                                                                                                                       0.174146595, 0.1785031086, 0.1427878082, 0.2154126214, 0.1351968124, 
+                                                                                                                                                                                                                       0.117573295, 0.1191274479, 0.1294084997, 0.1130069238, 0.1010060354, 
+                                                                                                                                                                                                                       0.1262329745, 0.1188653545, 0.1244070209, 0.1171794534, 0.1322903875, 
+                                                                                                                                                                                                                       0.09040251879, 0.1039239106, 0.108551758, 0.1051986583, 0.1112451918, 
+                                                                                                                                                                                                                       0.09691066013, 0.08857151425, 0.09206586826, 0.1442154807, 0.115848718, 
+                                                                                                                                                                                                                       0.1163703415, 0.1022058277, 0.0796504565, 0.1015258137), sd = c(0.00544534379, 
+                                                                                                                                                                                                                                                                                       0.002450552005, 0.01099042104, 0.01990496666, 0.1278627553, 0.01183349431, 
+                                                                                                                                                                                                                                                                                       0.0009760592088, 0.0003483618316, 0.0006002430173, 0.0003497066178, 
+                                                                                                                                                                                                                                                                                       0.0001190101187, 0.0004495699774, 0.001056751767, 0.0008385991238, 
+                                                                                                                                                                                                                                                                                       0.002776269384, 0.003141179178, 0.002264629356, 0.0002854253291, 
+                                                                                                                                                                                                                                                                                       0.001290991906, 0.001823914493, 0.0004200217485, 0.00021574591, 
+                                                                                                                                                                                                                                                                                       0.001326007864, 0.002469933866, 0.01028086287, 0.0004952558501, 
+                                                                                                                                                                                                                                                                                       0.001474450338, 0.0004351899832, 0.002435406591, 0.0008149949169
+                                                                                                                                                                                                                       )), row.names = c(NA, -30L), class = "data.frame")
+
+gledi <- gledi[!gledi$sd == max(gledi$sd),]
+sapply(split(gledi,gledi$stod), function(x) mean(x$tap))
+
+
+botngerd <- structure(list(Stod = structure(c(1L, 3L, 4L, 5L, 6L, 7L, 1L, 
+                                              3L, 4L, 5L, 6L, 7L), levels = c("A7", "B0", "B5", "B8", "C4", 
+                                                                              "E3", "E4", "U1", "U2"), class = "factor"), Dypi = structure(c(5L, 
+                                                                                                                                             8L, 4L, 9L, 2L, 1L, 5L, 8L, 4L, 9L, 2L, 1L), levels = c("10.2", 
+                                                                                                                                                                                                     "12", "14.3", "14.9", "15.1", "2.3", "2.9", "23.5", "33.1"), class = "factor"), 
+                           Botngerd = structure(c(1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+                                                  1L, 1L, 1L), levels = c("Ledja", "Mol"), class = "factor"), 
+                           Sild = c(0L, 0L, 0L, 0L, 0L, 0L, 0L, 1L, 0L, 0L, 1L, 1L
+                           ), Artal = c(1999L, 1999L, 1999L, 1999L, 1999L, 1999L, 2013L, 
+                                        2013L, 2013L, 2013L, 2013L, 2013L)), row.names = c(1L, 3L, 
+                                                                                           4L, 5L, 6L, 7L, 8L, 10L, 11L, 12L, 13L, 14L), class = "data.frame")
+
+rass <- botngerd[7:12,-5]
+
+
+
+
+
+
+
+
+
 ##2016
 dataPath <- here::here("Kolgr2016")
 datafiles <- list.files(path=dataPath, pattern = "csv", full.names = TRUE, recursive = T)
@@ -994,13 +1042,27 @@ for (i in 2013:2017) {
    
    KolgrTaxa <- read_csv("KolgrTaxa.csv", na = "empty") 
    
-   df <- KolgrTaxa %>% 
+   remove_list <- paste(c(
+     "nýsestir",
+     "ungviði",
+     "ungv",
+     "ungv.",
+     "juv",
+     "ath"
+   ), collapse = '|') 
+   
+   remove_ind <- lapply(strsplit(remove_list , "\\|")[[1]] , \(x) grep(x , KolgrTaxa$gamalt , fixed = T)) |> 
+     unlist() |> 
+     unique()
+   
+   ekkiungvidi <- KolgrTaxa[-remove_ind,] 
+   
+   df <- ekkiungvidi %>% 
      mutate(Artal = factor(Artal)) %>% 
      filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
      ddply(.(Artal, stod,Flokkun),summarise, N=sum(Nfm)) %>% 
      arrange(N)
    
-
    jorundur <- df %>% 
      filter(!Flokkun %in% c("Copepoda","Collembola", "Cyclopterus lumpus")) %>% 
      mutate(
@@ -1038,35 +1100,122 @@ for (i in 2013:2017) {
      
     veganjorundur <- jorundur %>%
      filter(Artal == i) %>% 
-     select(-Artal) %>% 
+     #select(-Artal) %>% 
       ddply(.(Flokkun,stod),summarise,N=sum(N)) %>% 
      pivot_wider(names_from = c(Flokkun), values_from = N) %>% 
       replace(is.na(.), 0) %>%
       column_to_rownames(var="stod")
    
    
-   # library(vegan)
-   # #data(dune)
-   # ord <- decorana(veganjorundur)
-   # ord <- metaMDS(veganjorundur)
-   # plot(ord, type = "n")
-   # points(ord, display = "sites", cex = 0.8, pch=21, col="red", bg="yellow")
-   # text(ord, display = "spec", cex=0.7, col="blue")
+   #library(vegan)
+   #data(dune)
+  # ord <- decorana(veganjorundur)
+ ord <- metaMDS(veganjorundur)
+ plot(ord, type = "n", main = i)
+ #points(ord, display = "sites", cex = 0.8, pch=21, col="red", bg="yellow")
+ text(ord, display = "spec", cex=0.7, col="blue")
+ text(ord, display = "sites", cex=1, col="red")
+ 
+ ordiellipse(ord, botngerd$Sild, col=1:4, kind = "ehull", lwd=3)
+ ordiellipse(ord, botngerd$Sild, col=1:4, draw="polygon")
+ ordispider(ord, botngerd$Sild, col=1:4, label = TRUE)
+ points(ord, disp="sites", pch=21, col="red", bg="yellow", cex=1.3)
+ text(ord, display = "sites", cex=1, col="blue")
 
-   # Euclidean distance
-   dist <- dist(veganjorundur , diag=TRUE)
+## Euclidean distance
+#dist <- dist(veganjorundur , diag=TRUE)
+#
+## Hierarchical Clustering with hclust
+#hc <- hclust(dist)
+#
+## Plot the result
+#plot(hc, main = i)
+    PCA <- rda(veganjorundur, scale = FALSE)
+   plot(PCA, main=i)
+   sitePCA <- PCA$CA$u # Site scores
+   speciesPCA <- PCA$CA$v # Species scores
    
-   # Hierarchical Clustering with hclust
-   hc <- hclust(dist)
-   
-   # Plot the result
-   plot(hc, main = i)
+   # In a biplot of a PCA, species' scores are drawn as arrows 
+   # that point in the direction of increasing values for that variable
+   biplot(PCA, choices = c(1,2), type = c("text", "text"), xlim = c(-5,10), main=i) # biplot of axis 1 vs 2
+   biplot(PCA, choices = c(1,3), type = c("text","text"), main=i) # biplot of axis 1 vs 3
    }
    
    
    
+   veganjorundur %>%
+     metaMDS(trace = F) %>%
+     ordiplot(type = "none") %>%
+     text("sites")
    
    
+   
+   PCA <- rda(veganjorundur, scale = FALSE)
+   # Use scale = TRUE if your variables are on different scales (e.g. for abiotic variables).
+   # Here, all species are measured on the same scale 
+   # So use scale = FALSE
+   
+   # Now plot a bar plot of relative eigenvalues. This is the percentage variance explained by each axis
+   barplot(as.vector(PCA$CA$eig)/sum(PCA$CA$eig)) 
+   # How much of the variance in our dataset is explained by the first principal component?
+   
+   # Calculate the percent of variance explained by first two axes
+   sum((as.vector(PCA$CA$eig)/sum(PCA$CA$eig))[1:2]) # 79%, this is ok.
+   # Also try to do it for the first three axes
+   
+   # Now, we`ll plot our results with the plot function
+   plot(PCA)
+   plot(PCA, display = "sites", type = "points")
+   plot(PCA, display = "species", type = "text")   
+   
+   
+   ###gera ord fyrir 199 á moti rest
+   
+   # 1999 á móti rest
+   agnarallt <- jorundur %>% 
+     filter(Artal == 1999) %>% 
+     ddply(.(Flokkun),summarise,N=sum(N)) %>% 
+     add_column(stod="1999")
+   stodvar <- jorundur %>% 
+     filter(Artal != 1999) %>% 
+     ddply(.(stod,Flokkun),summarise,N=sum(N)) %>% 
+     arrange(Flokkun, N, stod)
+   stodvar <- rbind(stodvar,agnarallt) 
+   
+   rass <- stodvar %>% 
+     pivot_wider(names_from = c(Flokkun), values_from = N) %>% 
+     replace(is.na(.), 0) %>%
+     column_to_rownames(var="stod")
+   
+   ## Euclidean distance
+   dist <- dist(rass , diag=TRUE)
+   #
+   ## Hierarchical Clustering with hclust
+   hc <- hclust(dist)
+   #
+   ## Plot the result
+   plot(hc,main = "1999 á móti 2013-2017")
+   
+   #lúppa fyrir öll ár
+   for (i in 2013:2017) {
+   stodvar <- jorundur %>% 
+     filter(Artal != 1999 & Artal == i) %>% 
+     ddply(.(stod,Flokkun),summarise,N=sum(N)) %>% 
+     arrange(Flokkun, N, stod)
+   stodvar <- rbind(stodvar,agnarallt) 
+   
+   rass <- stodvar %>% 
+     pivot_wider(names_from = c(Flokkun), values_from = N) %>% 
+     replace(is.na(.), 0) %>%
+     column_to_rownames(var="stod")
+   
+   ## Euclidean distance
+   dist <- dist(rass , diag=TRUE)
+   hc <- hclust(dist)
+   plot(hc,main = paste("1999 á móti",i))
+   
+   }
+   #
    
    
    
@@ -1124,4 +1273,54 @@ for (i in 2013:2017) {
    stich
    
    
+   
+   veganjorundur <- jorundur %>%
+     tidyr::unite(rowname, Artal, stod) %>% 
+     ddply(.(Flokkun,rowname),summarise,N=sum(N)) %>% 
+     pivot_wider(names_from = c(Flokkun), values_from = N) %>% 
+     replace(is.na(.), 0) %>%
+     column_to_rownames(var="rowname")
+   
+   ## Euclidean distance
+   dist <- dist(veganjorundur , diag=TRUE)
+   ## Hierarchical Clustering with hclust
+   hc <- hclust(dist)
+   ## Plot the result
+   plot(hc)
+   
+   
+   
+   
+   
+   
+   
+   
+   gogn <- jorundur %>% 
+     ddply(.(Artal,stod,Flokkun),summarise, N=sum(N)) %>% 
+     pivot_wider(names_from = c(stod,Artal), values_from = N)
+   
+   BBIlisti <- list()
+   BBIastand <- list()
+   nEQR <- list()
+   for (i in unique(jorundur$Artal)) {
+     my_BBI <- jorundur %>% filter(Artal %in% c(i)) %>%
+       ddply(.(Artal,stod,Flokkun),summarise, N=sum(N)) %>% 
+       select(-Artal) %>%
+       pivot_wider(names_from = stod, values_from = N) %>% 
+       BBI()
+     # calculating nEQR values and ecological quality status
+     BBIlisti[[i]] <- as.data.frame(cbind(my_BBI$BBI, Artal=i))
+     BBIastand[[i]] <- my_BBI$BBIclass
+     nEQR[[i]] <- as.data.frame(nEQR(my_BBI$BBI)[1])
+   }
+   
+   rass <- do.call(rbind,nEQR)
+   names(rass) <- c("nAMBI","nISI","nNSI","nNQI1","nShannon","nEQR")
+   mm <- as.matrix(rass, ncol = 7)
+   
+   heatmap.2(x = mm, Rowv = FALSE, Colv = FALSE, dendrogram = "none",
+             cellnote = mm, notecol = "black", notecex = .51,
+             trace = "none", key = FALSE)
+   
+   heatmap.2(mm,dendrogram = "col")
    
