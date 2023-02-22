@@ -1,3 +1,20 @@
+
+
+#hafa hópa í ordination
+#hafa top tíu tegundir sem sýna mesta breytileika
+# Taka Capitata út og fleira
+# byrja á því að plotta stöðvarnar og sjá svo hvort það sé hægt að skýra það út frá einhverjum umhverfisbreytum
+# Senda á Jörund nýja töflu
+# Taka kvaðratrót eða log af tegundunum
+# frávik milli ára 
+# gera hclust milli ára
+# Athuga með gögn um súrefnisstyrk
+
+
+
+
+
+
 gledi <- structure(list(ar = c(2013L, 2013L, 2013L, 2013L, 2013L, 2013L, 
                                2014L, 2014L, 2014L, 2014L, 2014L, 2014L, 2015L, 2015L, 2015L, 
                                2015L, 2015L, 2015L, 2016L, 2016L, 2016L, 2016L, 2016L, 2016L, 
@@ -956,9 +973,6 @@ scrape_fun <- function(url_in, crop_left, crop_top){
 
 
 
-
-
-
 gogn <- geggjad %>% 
   filter(stod %in% c("A7", "B5", "B8","C4", "E3", "E4")) %>% 
   mutate(Artal = factor(Artal)) %>% 
@@ -1322,5 +1336,93 @@ for (i in 2013:2017) {
              cellnote = mm, notecol = "black", notecex = .51,
              trace = "none", key = FALSE)
    
-   heatmap.2(mm,dendrogram = "col")
+   heatmap.2(mm,dendrogram = "row")
+   
+   
+   
+   rass %>% 
+     select(nNQI1, nAMBI, nShannon) %>% 
+     as.matrix() %>% 
+     heatmap.2(dendogram = "row")
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   #Artal
+   DF.A <- jorundur %>%
+     #tidyr::unite(rowname, Artal, stod) %>% 
+     ddply(.(Flokkun,Artal,stod),summarise,N=sum(N)) %>% 
+     pivot_wider(names_from = c(Flokkun), values_from = N) %>% 
+     replace(is.na(.), 0) %>%
+     select(-c(Artal,stod))
+  
+   DF.B <- jorundur %>%
+     #tidyr::unite(rowname, Artal, stod) %>% 
+     ddply(.(Flokkun,Artal,stod),summarise,N=sum(N)) %>% 
+     pivot_wider(names_from = c(Flokkun), values_from = N) %>% 
+     replace(is.na(.), 0) %>%
+     select(c(Artal))
+   
+   #stöð
+   DF.A <- jorundur %>%
+     #tidyr::unite(rowname, Artal, stod) %>% 
+     ddply(.(Flokkun,Artal,stod),summarise,N=sum(N)) %>% 
+     pivot_wider(names_from = c(Flokkun), values_from = N) %>% 
+     replace(is.na(.), 0) %>%
+     select(-c(Artal,stod))
+      
+   DF.B <- jorundur %>%
+     #tidyr::unite(rowname, Artal, stod) %>% 
+     ddply(.(Flokkun,Artal,stod),summarise,N=sum(N)) %>% 
+     pivot_wider(names_from = c(Flokkun), values_from = N) %>% 
+     replace(is.na(.), 0) %>%
+     select(c(stod)) %>% 
+     mutate(stod = factor(stod)) 
+   
+   
+   
+   
+   require("vegan")
+   
+   ## load the Dune data
+   #data(dune, dune.env)
+   
+   ## PCA of the Dune data
+   mod <- rda(DF.A, scale = TRUE)
+   
+   ## plot the PCA
+   plot(mod, scaling = 3)
+   
+   ## build the plot up via vegan methods
+   scl <- 3 ## scaling == 3
+   colvec <- c("red2", "green4", "mediumblue", "orange", "black", "cyan")
+   plot(mod, type = "n", scaling = scl)
+   text(mod, display = "species", scaling = scl, cex = 0.8, col = "grey")
+   with(DF.B, points(mod, display = "sites", col = colvec[Artal],
+                         scaling = scl, pch = 21, bg = colvec[Artal]))
+   with(DF.B, legend("topright", legend = levels(Artal), bty = "n",
+                         col = colvec, pch = 21, pt.bg = colvec))
+   #with(DF.B, text(mod, display = "sites", scaling = scl, cex = 0.8, col = colvec[Artal]))
+   
+   
+   
+   
+   
+   
+   
+   A<-list()
+   B<-c()
+   for (i in 1:5) {
+     A[i] <- list.files("./skjol/gps", full.names = T)
+     #try(rgdal::ogrListLayers(A[i]))
+     try(sf::st_read(A[i]))
+   }
+ rgdal::readOGR("./skjol/gps/Synataka_21_24_25_juni_2013.gdb")
    
