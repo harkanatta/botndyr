@@ -1,5 +1,4 @@
 
-
 #hafa hópa í ordination
 #hafa top tíu tegundir sem sýna mesta breytileika
 # Taka Capitata út og fleira
@@ -9,7 +8,15 @@
 # frávik milli ára 
 # gera hclust milli ára
 # Athuga með gögn um súrefnisstyrk
+#
 
+Gera unconstrained, unimodal ordination, CA eða DCA.
+ * Unimodal vegna þess að fyrsti DCA-ásinn eftir decorana() er >4
+ * Unconstrained vegna þess að umhverfisbreytur eru notaðar til skýringa eftir á en ekki partur af tilraun.
+
+DCA <- decorana (veg = log1p (veganjorundur))
+ordiplot (DCA, display = 'sp', type = 'n')
+orditorp (DCA, display = 'sp')
 
 
 
@@ -1077,8 +1084,9 @@ for (i in 2013:2017) {
      ddply(.(Artal, stod,Flokkun),summarise, N=sum(Nfm)) %>% 
      arrange(N)
    
-   jorundur <- df %>% 
-     filter(!Flokkun %in% c("Copepoda","Collembola", "Cyclopterus lumpus")) %>% 
+   DF <- ekkiungvidi %>% 
+     filter(!Flokkun %in% c("Copepoda","Collembola", "Cyclopterus lumpus") &
+              !Class %in% "Copepoda") %>% 
      mutate(
        Flokkun = case_when(
          Artal == 1999 & Flokkun == "Ampharete acutifrons" ~ "Ampharetinae",
@@ -1106,8 +1114,59 @@ for (i in 2013:2017) {
          Artal == 2016 & Flokkun == "Cardiidae" ~ "Cardium",
          Artal == 2017 & Flokkun == "Mya" ~ "Mya arenaria",
          Artal == 2017 & Flokkun == "Maldanidae" ~ "Praxillella praetermissa",
-       TRUE ~ Flokkun)) %>% 
-     drop_na() 
+         TRUE ~ Flokkun)) %>% 
+     drop_na()
+   
+   dfvegan <- DF %>% mutate(Artal = factor(Artal)) %>% 
+     filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
+     ddply(.(Flokkun,stod),summarise,N=sum(Nfm)) %>%
+     filter(Flokkun!="") %>% 
+      mutate(Flokkun = factor(Flokkun)) %>%
+      pivot_wider(names_from = c(Flokkun), values_from = N) %>% 
+      replace(is.na(.), 0) %>%
+      column_to_rownames(var="stod") 
+   ord <- decorana(labdsv::hellinger(dfvegan))
+   plot(ord, type = "n", main = i)
+   #points(ord, display = "sites", cex = 0.8, pch=21, col="red", bg="yellow")
+   text(ord, display = "spec", cex=0.7, col="blue")
+   text(ord, display = "sites", cex=1, col="red")
+   
+   
+   
+   dfvegan <- DF %>% 
+     filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>%
+     add_column(dypi = 1) %>% 
+     mutate(
+       dypi = case_when(
+         stod == "C4" ~ 16.6,
+         stod == "A7" ~ 24.5,
+         stod == "B5" ~ 16.6,
+         stod == "B8" ~ 34.0,
+         stod == "E4" ~ 11.2,
+         TRUE ~ 11.0)) %>%
+     tidyr::unite(rowname, Artal, stod) %>% 
+     ddply(.(Flokkun,rowname,dypi),summarise,N=sum(N)) 
+   
+   
+   dfvegan %>% 
+     pivot_wider(names_from = c(Flokkun), values_from = N) %>% 
+     replace(is.na(.), 0) %>%
+     column_to_rownames(var="rowname")
+   
+   
+   
+   
+   
+
+   
+   
+   
+   
+   
+   ordiplot (ord, display = 'si', type = 'n')
+   points (ord, col = botngerd$Dypi, pch =
+             botngerd$Dypi )
+   
    
    
    for (i in unique(jorundur$Artal)) {
@@ -1123,8 +1182,8 @@ for (i in 2013:2017) {
    
    #library(vegan)
    #data(dune)
-  # ord <- decorana(veganjorundur)
- ord <- metaMDS(veganjorundur)
+ ord <- decorana(labdsv::hellinger(veganjorundur))
+ #ord <- metaMDS(veganjorundur)
  plot(ord, type = "n", main = i)
  #points(ord, display = "sites", cex = 0.8, pch=21, col="red", bg="yellow")
  text(ord, display = "spec", cex=0.7, col="blue")
@@ -1133,8 +1192,8 @@ for (i in 2013:2017) {
  ordiellipse(ord, botngerd$Sild, col=1:4, kind = "ehull", lwd=3)
  ordiellipse(ord, botngerd$Sild, col=1:4, draw="polygon")
  ordispider(ord, botngerd$Sild, col=1:4, label = TRUE)
- points(ord, disp="sites", pch=21, col="red", bg="yellow", cex=1.3)
- text(ord, display = "sites", cex=1, col="blue")
+ #points(ord, disp="sites", pch=21, col="red", bg="yellow", cex=1.3)
+ #text(ord, display = "sites", cex=1, col="blue")
 
 ## Euclidean distance
 #dist <- dist(veganjorundur , diag=TRUE)
@@ -1426,3 +1485,178 @@ for (i in 2013:2017) {
    }
  rgdal::readOGR("./skjol/gps/Synataka_21_24_25_juni_2013.gdb")
    
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ remove_list <- paste(c(
+   "nýsestir",
+   "ungviði",
+   "ungv",
+   "ungv.",
+   "juv",
+   ".",
+   "ath"
+ ), collapse = '|') # Röðin skiptir ekki máli til dæmis "." á undan "sp." eða öfugt. Það eru jafn mörg tilfelli af "sp." í allartalningar$Flokkun þó svo "." sé á undan
+ 
+ remove_ind <- lapply(strsplit(remove_list , "\\|")[[1]] , \(x) grep(x , geggjad$gamalt , fixed = T)) |> 
+   unlist() |> 
+   unique()
+ 
+ 
+ 
+ ungvidi <- geggjad[remove_ind,] 
+ 
+ ungv <- ddply(ungvidi,.(Flokkun,Artal),summarise, N =sum(Nu))
+ 
+ 
+ 
+ Fjölþátta greining eingöngu 2013-2017
+ 2. lumpa saman öllum stöðvum (sem við notuðum) Agnars í eina. 
+ 3. 1999-2017
+ Bray-Curtis
+ Multi dimensional scaling 
+ (meginþáttagreiningu og fylgnigreiningu með reikniforritinu R (R Core Team, 2014;  Oksanen o. ., 2015))
+ Passa upp á að 1999 sé sambærileg m2 þegar skoðað er þéttleikabreytingar á tíma
+ Fjöldi teg á stöð sé óháð flatarmáli
+ 
+ # 1. Marine biology
+ # 2. Marine biology research
+ # 3. Marine pollution bullettin
+ 
+ 
+ A <- list()
+ for (i in c("1999", "2013", "2014", "2015", "2016", "2017")) {
+   df <- DF[DF$Artal==i,]
+   #df <- jorundur[jorundur$Artal==i,]
+   A[[i]] <- names(sort(sapply(split(df,df$Flokkun), function(x) sum(x$N)), decreasing = T)[1:10])
+ }
+ gagn <- table(unlist(A))
+ gagn <- gagn[gagn>1]
+ 
+ rass <- DF[DF$Flokkun %in% names(gagn),] %>% ddply(.(Artal, stod,Flokkun),summarise, N=sum(N), .drop=FALSE)%>% 
+   filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
+   mutate(Artal = factor(Artal))
+ 
+ rass%>% 
+   ggplot(aes(x = Artal, y = N)) +
+   facet_wrap(~Flokkun, scales = "free") +
+   geom_bar(aes(fill = stod), stat = "identity", color="black",position=position_dodge(preserve = "single"))  +
+   xlab("") + 
+   labs(caption = "(Botndýr í Kolgrafafirði 1999 og 2013-2017)") +
+   theme_pubclean()
+ 
+ BBIlisti <- list()
+ BBIastand <- list()
+ nEQR <- list()
+ for (i in unique(rass$Artal)) {
+   my_BBI <- rass %>% filter(Artal %in% c(i)) %>%
+     select(-Artal) %>%
+     pivot_wider(names_from = stod, values_from = N) %>% 
+     BBI()
+   # calculating nEQR values and ecological quality status
+   BBIlisti[[i]] <- as.data.frame(cbind(my_BBI$BBI, Artal=i))
+   BBIastand[[i]] <- my_BBI$BBIclass
+   nEQR[[i]] <- as.data.frame(nEQR(my_BBI$BBI)[1])
+ }
+ 
+ ress <- do.call(rbind,nEQR)
+ names(ress) <- c("nAMBI","nISI","nNSI","nNQI1","nShannon","nEQR")
+ mm <- as.matrix(ress, ncol = 7)
+ 
+ heatmap.2(x = mm, Rowv = FALSE, Colv = FALSE, dendrogram = "none",
+           cellnote = mm, notecol = "black", notecex = .51,
+           trace = "none", key = FALSE, srtCol=0,   adjCol = c(0.5,1))
+ 
+ heatmap.2(mm,dendrogram = "row", srtCol=0,   adjCol = c(0.5,1))
+ 
+ 
+ ress %>% 
+   select(nNQI1, nAMBI, nShannon) %>% 
+   as.matrix() %>% 
+   heatmap.2(dendogram = "row", srtCol=0,   adjCol = c(0.5,1)) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ f <- file.path(list.files(here::here("set"),pattern = "pdf",full.names = T))
+ tafla <- tabulizer::extract_tables(f, pages = 17:53)
+ tabbla <- do.call(rbind,tafla)
+ 
+ B<-list()
+ for (i in names(gagn)) {
+   B[[i]]<-tabbla[grepl(substr(i,1,6),tabbla[,4]),]
+ }
+ 
+ td <- do.call(rbind,B)
+ Tdf <- td[c(3,32,44,50,74,86,90,93,103,110,113,117,120),]
+ Tdf[,1] <- unname(Tdf[,1])
+ 
+ 
+ 
+ Tdf <- structure(c("POSE", "POSE", "POER", "POER", "MOBI", "POSE", "POER", 
+                    "ANOL", "POSE", "POSE", "CRAM", "POSE", "POSE", "POSE", "0248", 
+                    "0252", "0214", "0220", "0456", "0248", "0186", "0000", "0270", 
+                    "0310", "0810", "0304", "0272", "0310", "0450", "0500", "0300", 
+                    "0590", "0520", "0950", "0687", "0001", "1140", "1507", "1490", 
+                    "1680", "1745", "0310", "Capitella capitata", "Chaetozone setosa", 
+                    "Eteone longa", "Harmothoe", "Macoma calcarea", "Mediomastus fragilis", 
+                    "Microphthalmus aberrans", "Oligochaeta", "Ophelina acuminata", 
+                    "Polydora", "Protomedeia fasciata", "Scalibregma inflatum", 
+                    "Scoloplos armiger", "Spionidae", "SS", "SR", "SR", "SR", 
+                    "SR", "SS", "SR", "SS", "SS", "SR", "SR", "SS", "SS", "SR", "D", 
+                    "D", "M", "M", "D", "D", "M", "M", "M", "D", "D", "M", "M", "D", 
+                    "F", "F", "F", "F", "F", "F", "F", "F", "F", "T", "T", "B", "F", 
+                    "T", "Om", "Om", "Ca", "Ca", "Om", "Om", "He", "Om", "Om", "Om", 
+                    "Om", "Om", "Om", "Om", "sed/pom/mic", "sed/pom/mic/dia", "mac", 
+                    "mac", "sed/pom/mic", "sed/pom/mic", "dia", "pom/mic/dia", "sed/pom/mic", 
+                    "sed/pom/mic/dia/phy", "pom/mic/dia/phy", "sed/pom/mic", "sed/pom/mic", 
+                    "sed/pom/mic/dia/phy", "De", "De", "Pr/De", "Pr", "De/Su", "De", 
+                    "Gr", "Dt", "De", "De/Su", "Su", "De", "De", "De/Su", "SS-De", 
+                    "SR-De", "SR-Pr-mac", "SR-Pr-mac", "SR-De", "SS-De", "SR-He-mic", 
+                    "SS-Om-mic", "SS-De", "SR-De", "SR-Su", "SS-De", "SS-De", "SR-De"
+ ), dim = c(14L, 11L), dimnames = list(NULL, c("Major Group", 
+                                               "Family code", "Species code", "Flokkun", "Food Source", 
+                                               "Motility", "Habit", "Om/Ca/He", "Food size/type", "FeedMode", 
+                                               "Feeding guild")))
+ 
+ 
+ Tdf <- as.data.frame(Tdf[-14,])
+ 
+ Dt <- merge(rass, 
+             Tdf,
+             all.x = T,
+             by = "Flokkun")
+ 
+ Dt %>% 
+   ggplot(aes(x = Artal, y = N)) +
+   facet_wrap(~Dt$`Major Group`, scales = "free") +
+   geom_bar(aes(fill = stod), stat = "identity", color="black",position="dodge")  +
+   xlab("") + 
+   labs(caption = "(Botndýr í Kolgrafafirði 1999 og 2013-2017)")
+ 
+ # ANOL Ph. Annelida, Oligochaeta (oligochaetes)
+ # MOBI Ph. Mollusca, Cl. Bivalvia (clams, scallops, mussels, oysters, etc.) 
+ # POER Ph. Annelida, Polychaeta Errantia 349 
+ # POSE Ph. Annelida, Polychaeta Sedentaria 
+ 
+ 
+ 
+ 

@@ -9,7 +9,7 @@ output: html_document
 ```{r pakkar, message=FALSE, warning=FALSE, include=FALSE}
 
 knitr::opts_chunk$set(echo = TRUE)
-Rpakkar <- c("tidyverse","benthos","worrms", "plyr", "data.table", "DT", "dplyr", "here", "BBI", "ggh4x", "gplots","PDE", "magick", "tesseract", "xlsx")
+Rpakkar <- c("tidyverse","benthos","worrms", "plyr", "data.table", "DT", "dplyr", "here", "BBI", "ggh4x", "gplots","PDE", "magick", "tesseract", "xlsx", "ggpubr")
 install.packages('pacman')
 pacman::p_load(Rpakkar, character.only = TRUE)
 #remotes::install_github(c("ropensci/tabulizerjars", "ropensci/tabulizer"))
@@ -425,7 +425,8 @@ p <- tafla %>%
     ggplot(aes(x = Artal, y = AMBI)) +
     geom_bar(aes(fill = stod), stat = "identity", color="black",position="dodge")  +
     xlab("") + 
-    labs(title = "AMBI", caption = "(Botndýr í Kolgrafafirði 2013-2017)")
+    labs(title = "AMBI", caption = "(Botndýr í Kolgrafafirði 2013-2017)") +
+    theme_pubclean()
 
 
 ```
@@ -439,7 +440,7 @@ load("./skjol/kolbreytur.Rda", verbose = T) #sa
 ```
 
 
-```{r}
+```{r skrifaut}
   
 DF <- ekkiungvidi %>% 
      filter(!Flokkun %in% c("Copepoda","Collembola", "Cyclopterus lumpus")) %>% 
@@ -552,14 +553,7 @@ dev.off()
 
 
 ```{r fjferm}
-  
-   KolgrTaxa <- read_csv("KolgrTaxa.csv", na = "empty") 
-   
-   df <- KolgrTaxa %>% 
-     mutate(Artal = factor(Artal)) %>% 
-     filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
-     ddply(.(Artal, stod,Flokkun),summarise, N=sum(N), Nfm=sum(Nfm))
-   
+
  df <- ekkiungvidi %>% 
      mutate(Artal = factor(Artal)) %>% 
      filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
@@ -693,5 +687,30 @@ botngerd <- botngerd[,-1]
    
 ```
 
+```{r Capitata}
+
+gagn <- sort(sapply(split(DF,DF$Flokkun), function(x) sd(x$N)), decreasing = T)
+
+DF[DF$Flokkun %in% names(gagn)[1:10],] %>% ddply(.(Artal, stod,Flokkun),summarise, N=sum(N))%>% 
+    filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
+    mutate(Artal = factor(Artal)) %>% 
+    ggplot(aes(x = Artal, y = N)) +
+    facet_wrap(~Flokkun, scales = "free") +
+    geom_bar(aes(fill = stod), stat = "identity", color="black",position="dodge")  +
+    xlab("") + 
+    labs(caption = "(Botndýr í Kolgrafafirði 1999 og 2013-2017)")
+
+
+gagn <- sort(sapply(split(DF,DF$Flokkun), function(x) sum(x$N)), decreasing = T)
+
+DF[DF$Flokkun %in% names(gagn)[1:10],] %>% ddply(.(Artal, stod,Flokkun),summarise, N=sum(N))%>% 
+    filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
+    mutate(Artal = factor(Artal)) %>% 
+    ggplot(aes(x = Artal, y = N)) +
+    facet_wrap(~Flokkun, scales = "free") +
+    geom_bar(aes(fill = stod), stat = "identity", color="black",position="dodge")  +
+    xlab("") + 
+    labs(caption = "(Botndýr í Kolgrafafirði 1999 og 2013-2017)")
+```
 
 
