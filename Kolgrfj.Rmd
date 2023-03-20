@@ -9,7 +9,7 @@ output: html_document
 ```{r pakkar, message=FALSE, warning=FALSE, include=FALSE}
 
 knitr::opts_chunk$set(echo = TRUE)
-Rpakkar <- c("tidyverse","benthos","worrms", "plyr", "data.table", "DT", "dplyr", "here", "BBI", "ggh4x", "gplots","PDE", "magick", "tesseract", "xlsx", "ggpubr")
+Rpakkar <- c("tidyverse","benthos","worrms", "plyr", "data.table", "DT", "dplyr", "here", "BBI", "ggh4x", "gplots","PDE", "magick", "tesseract", "xlsx", "ggpubr", "factoextra")
 install.packages('pacman')
 pacman::p_load(Rpakkar, character.only = TRUE)
 #remotes::install_github(c("ropensci/tabulizerjars", "ropensci/tabulizer"))
@@ -691,7 +691,7 @@ botngerd <- botngerd[,-1]
 
 gagn <- sort(sapply(split(DF,DF$Flokkun), function(x) sd(x$N)), decreasing = T)
 
-DF[DF$Flokkun %in% names(gagn)[1:10],] %>% ddply(.(Artal, stod,Flokkun),summarise, N=sum(N))%>% 
+DF[DF$Flokkun %in% names(gagn)[1:10],] %>% ddply(.(Artal, stod,Flokkun),summarise, N=sum(N), .drop=F)%>% 
     filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
     mutate(Artal = factor(Artal)) %>% 
     ggplot(aes(x = Artal, y = N)) +
@@ -701,9 +701,12 @@ DF[DF$Flokkun %in% names(gagn)[1:10],] %>% ddply(.(Artal, stod,Flokkun),summaris
     labs(caption = "(Botndýr í Kolgrafafirði 1999 og 2013-2017)")
 
 
+
+# Sjá E. longa 2014 (predator) 
+
 gagn <- sort(sapply(split(DF,DF$Flokkun), function(x) sum(x$N)), decreasing = T)
 
-DF[DF$Flokkun %in% names(gagn)[1:10],] %>% ddply(.(Artal, stod,Flokkun),summarise, N=sum(N))%>% 
+DF[DF$Flokkun %in% names(gagn)[1:10],] %>% ddply(.(Artal, stod,Flokkun),summarise, N=sum(N), .drop=F)%>% 
     filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
     mutate(Artal = factor(Artal)) %>% 
     ggplot(aes(x = Artal, y = N)) +

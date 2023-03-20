@@ -1639,6 +1639,7 @@ for (i in 2013:2017) {
  
  
  Tdf <- as.data.frame(Tdf[-14,])
+ rass <- DF %>% filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3"))
  
  Dt <- merge(rass, 
              Tdf,
@@ -1646,8 +1647,9 @@ for (i in 2013:2017) {
              by = "Flokkun")
  
  Dt %>% 
+   mutate(Artal = factor(Artal)) %>% 
    ggplot(aes(x = Artal, y = N)) +
-   facet_wrap(~Dt$`Major Group`, scales = "free") +
+   facet_wrap(~Dt$`FeedMode`, scales = "free") +
    geom_bar(aes(fill = stod), stat = "identity", color="black",position="dodge")  +
    xlab("") + 
    labs(caption = "(Botndýr í Kolgrafafirði 1999 og 2013-2017)")
@@ -1660,3 +1662,93 @@ for (i in 2013:2017) {
  
  
  
+ 
+ 
+ 
+ 
+ library(BBI)
+ BBIlisti <- list()
+ BBIastand <- list()
+ nEQR <- list()
+ for (i in unique(jorundur$Artal)) {
+   my_BBI <- jorundur %>% filter(Artal %in% c(i)) %>%
+     ddply(.(Artal,stod,Flokkun),summarise, N=sum(N)) %>% 
+     select(-Artal) %>%
+     pivot_wider(names_from = stod, values_from = N) %>% 
+     BBI()
+   # calculating nEQR values and ecological quality status
+   BBIlisti[[i]] <- as.data.frame(cbind(my_BBI$BBI, Artal=i))
+   BBIastand[[i]] <- my_BBI$BBIclass
+   nEQR[[i]] <- as.data.frame(nEQR(my_BBI$BBI)[1])
+ }
+ 
+ rass <- do.call(rbind,nEQR)
+ names(rass) <- c("nAMBI","nISI","nNSI","nNQI1","nShannon","nEQR")
+ 
+ 
+ rass %>%
+   scale() %>%                           # Scale the data
+   dist() %>%                            # Compute distance matrix
+   hclust(method = "ward.D2") %>%        # Hierarchical clustering
+   fviz_dend(cex = 0.5, k = 6, palette = "jco") 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Nofn1 <- names(gagn)
+df2 <- as.data.frame(td)
+Nofn2 <-  df2$V4
+
+df2[Nofn1 %in% Nofn2,]
+
+
+
+
+
+
+
+
+library(dplyr)
+library(knitr)
+
+x <- Nofn2
+
+ignores <- c("university", "college", "u", "of", "institute", "inst")
+
+x_refin <- x %>% 
+  refinr::key_collision_merge(ignore_strings = ignores) %>% 
+  refinr::n_gram_merge(ignore_strings = ignores)
+
+# Create df for comparing the original values to the edited values.
+# This is especially useful for larger input vectors.
+inspect_results <- data_frame(original_values = x, edited_values = x_refin) %>% 
+  mutate(equal = original_values == edited_values)
+
+# Display only the values that were edited by refinr.
+knitr::kable(
+  inspect_results[!inspect_results$equal, c("original_values", "edited_values")]
+)
+#> |original_values                         |edited_values                    |
+#> |:---------------------------------------|:--------------------------------|
+#> |Clemsson University                     |CLEMSON                          |
+#> |university-of-clemson                   |CLEMSON                          |
+#> |Clem son, U.                            |CLEMSON                          |
+#> |college, clemson u                      |CLEMSON                          |
+#> |Technology, Massachusetts' Institute of |Massachusetts Inst of Technology |
+#> |UNIVERSITY:  mit                        |M.I.T.                           |
+ 
+ 
+
+
+f <- file.path(list.files(here::here("skjol/lesefni/feeding"),pattern = "pdf",full.names = T))
+tafla <- tabulizer::extract_tables(f)
+tabbla <- do.call(rbind,tafla)

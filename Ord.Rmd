@@ -1,0 +1,63 @@
+---
+title: "Ord"
+author: "Valtýr"
+date: "2023-03-13"
+output: html_document
+---
+
+```{r innlestur}
+KolgrTaxa <- read_csv("KolgrTaxa.csv", na = "empty") 
+   
+   remove_list <- paste(c(
+     "nýsestir",
+     "ungviði",
+     "ungv",
+     "ungv.",
+     "juv",
+     "harpacticoida"
+   ), collapse = '|') 
+   
+   remove_ind <- lapply(strsplit(remove_list , "\\|")[[1]] , \(x) grep(x , KolgrTaxa$gamalt , fixed = T)) |> 
+     unlist() |> 
+     unique()
+   
+   ekkiungvidi <- KolgrTaxa[-remove_ind,] 
+   
+   df <- ekkiungvidi %>% 
+     mutate(Artal = factor(Artal)) %>% 
+     filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
+     ddply(.(Artal, stod,Flokkun),summarise, N=sum(Nfm)) %>% 
+     arrange(N)
+   
+   jorundur <- df %>% 
+     filter(!Flokkun %in% c("Copepoda","Collembola", "Cyclopterus lumpus")) %>% 
+     mutate(
+       Flokkun = case_when(
+         Artal == 1999 & Flokkun == "Ampharete acutifrons" ~ "Ampharetinae",
+         Artal == 1999 & Flokkun == "Bivalvia" ~ NA,
+         Artal == 2013 & Flokkun == "Harmothoe" ~ "Harmothoe extenuata",
+         Artal == 2013 & Flokkun == "Polynoidae" ~ "Harmothoe extenuata",
+         Artal == 2014 & Flokkun == "Praxillella" ~ "Praxillella praetermissa",
+         Artal == 2014 & Flokkun == "Syllidae" ~ "Syllis cornuta",
+         Artal == 2015 & Flokkun == "Syllidae" ~ "Syllis cornuta",
+         Artal == 2015 & Flokkun == "Mya" ~ "Mya arenaria",
+         Artal == 2015 & Flokkun == "Mytilidae" ~ "Mytilus edulis",
+         Artal == 2015 & Flokkun == "Bivalvia" ~ NA,
+         Artal == 2016 & Flokkun == "Ampharetidae" ~ "Amphitrite cirrata",
+         Artal == 2016 & Flokkun == "Aricidea" ~ "Aricidea suecica",
+         Artal == 2016 & Flokkun == "Capitellidae" ~ "Capitella capitata",
+         Artal == 2016 & Flokkun == "Cirratulidae" ~ "Cirratulus cirratus",
+         Artal == 2016 & Flokkun == "Cossuridae" ~ "Cossura longocirrata",
+         Artal == 2016 & Flokkun == "Nephtyidae" ~ "Nephtys",
+         Artal == 2016 & Flokkun == "Pectinariidae" ~ "Pectinaria koreni",
+         Artal == 2016 & Flokkun == "Phyllodocida" ~ "Phyllodoce maculata",
+         Artal == 2016 & Flokkun == "Spio" ~ "Spio filicornis",
+         Artal == 2016 & Flokkun == "Spionidae" ~ "Spio filicornis",
+         Artal == 2016 & Flokkun == "Syllidae" ~ "Syllis",
+         Artal == 2016 & Flokkun == "Cardiidae" ~ "Cardium",
+         Artal == 2016 & Flokkun == "Cardiidae" ~ "Cardium",
+         Artal == 2017 & Flokkun == "Mya" ~ "Mya arenaria",
+         Artal == 2017 & Flokkun == "Maldanidae" ~ "Praxillella praetermissa",
+       TRUE ~ Flokkun)) %>% 
+     drop_na() 
+```
