@@ -1,4 +1,11 @@
 
+
+data.frame(Artal=c(),
+           Flokkun = c(),
+           ER = c(),
+           VERDUR = c())
+  
+  
 #hafa hópa í ordination
 #hafa top tíu tegundir sem sýna mesta breytileika
 # Taka Capitata út og fleira

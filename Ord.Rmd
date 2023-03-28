@@ -5,6 +5,28 @@ date: "2023-03-13"
 output: html_document
 ---
 
+```{r pakkar, message=FALSE, warning=FALSE, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+#Rpakkar <- c("tidyverse","benthos","worrms", "plyr", "data.table", "DT", "dplyr", "here", "BBI", "ggh4x", "gplots","PDE", "magick", "tesseract", "xlsx", "ggpubr", "factoextra")
+Rpakkar <- c("tidyverse", "diagram", "genogram")
+
+#install.packages('pacman')
+pacman::p_load(Rpakkar, character.only = TRUE)
+#remotes::install_github(c("ropensci/tabulizerjars", "ropensci/tabulizer"))
+#install.packages("PDE", dependencies = TRUE)
+#Sys.setlocale("LC_ALL", "Icelandic") # `Sys.setlocale` er hér fyrir íslenskar dagsetningar.
+```
+
+
+```{r}
+Sys.setenv(
+    OPENAI_API_KEY = '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'
+)
+```
+C:/Users/valty/AppData/Local/R/win-library/4.2/openai/extdata/mask.png
+
+
 ```{r innlestur}
 KolgrTaxa <- read_csv("KolgrTaxa.csv", na = "empty") 
    
@@ -54,7 +76,6 @@ KolgrTaxa <- read_csv("KolgrTaxa.csv", na = "empty")
          Artal == 2016 & Flokkun == "Spio" ~ "Spio filicornis",
          Artal == 2016 & Flokkun == "Spionidae" ~ "Spio filicornis",
          Artal == 2016 & Flokkun == "Syllidae" ~ "Syllis",
-         Artal == 2016 & Flokkun == "Cardiidae" ~ "Cardium",
          Artal == 2016 & Flokkun == "Cardiidae" ~ "Cardium",
          Artal == 2017 & Flokkun == "Mya" ~ "Mya arenaria",
          Artal == 2017 & Flokkun == "Maldanidae" ~ "Praxillella praetermissa",
