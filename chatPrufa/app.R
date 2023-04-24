@@ -36,7 +36,9 @@ server <- function(input, output) {
       Flokkun = input$flokkun,
       Name = input$name
     )
-    df_new(df_new() %>% bind_rows(new_row))
+    df_new(df_new() %>% bind_rows(new_row) %>% 
+             mutate(New_Column = paste0('Artal == "', Artal, '" & Flokkun == "', Flokkun, 
+                                        '" ~ "', Name, '"')))
   })
   
   output$table <- renderDT(df_new()[ order(as.numeric(row.names(df_new())),decreasing = TRUE), ], options = list(pageLength = 100))

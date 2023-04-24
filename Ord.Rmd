@@ -9,7 +9,7 @@ output: html_document
 
 knitr::opts_chunk$set(echo = TRUE)
 #Rpakkar <- c("tidyverse","benthos","worrms", "plyr", "data.table", "DT", "dplyr", "here", "BBI", "ggh4x", "gplots","PDE", "magick", "tesseract", "xlsx", "ggpubr", "factoextra")
-Rpakkar <- c("tidyverse", "diagram", "genogram")
+Rpakkar <- c("tidyverse", "diagram", "genogram", "xlsx")
 
 #install.packages('pacman')
 pacman::p_load(Rpakkar, character.only = TRUE)
@@ -19,12 +19,6 @@ pacman::p_load(Rpakkar, character.only = TRUE)
 ```
 
 
-```{r}
-Sys.setenv(
-    OPENAI_API_KEY = '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'
-)
-```
-C:/Users/valty/AppData/Local/R/win-library/4.2/openai/extdata/mask.png
 
 
 ```{r innlestur}
@@ -52,33 +46,219 @@ KolgrTaxa <- read_csv("KolgrTaxa.csv", na = "empty")
      arrange(N)
    
    jorundur <- df %>% 
-     filter(!Flokkun %in% c("Copepoda","Collembola", "Cyclopterus lumpus")) %>% 
+     filter(!Flokkun %in% c("harpacticoida", "Campanulariidae")) %>% 
      mutate(
        Flokkun = case_when(
-         Artal == 1999 & Flokkun == "Ampharete acutifrons" ~ "Ampharetinae",
-         Artal == 1999 & Flokkun == "Bivalvia" ~ NA,
-         Artal == 2013 & Flokkun == "Harmothoe" ~ "Harmothoe extenuata",
-         Artal == 2013 & Flokkun == "Polynoidae" ~ "Harmothoe extenuata",
-         Artal == 2014 & Flokkun == "Praxillella" ~ "Praxillella praetermissa",
-         Artal == 2014 & Flokkun == "Syllidae" ~ "Syllis cornuta",
-         Artal == 2015 & Flokkun == "Syllidae" ~ "Syllis cornuta",
-         Artal == 2015 & Flokkun == "Mya" ~ "Mya arenaria",
-         Artal == 2015 & Flokkun == "Mytilidae" ~ "Mytilus edulis",
-         Artal == 2015 & Flokkun == "Bivalvia" ~ NA,
-         Artal == 2016 & Flokkun == "Ampharetidae" ~ "Amphitrite cirrata",
-         Artal == 2016 & Flokkun == "Aricidea" ~ "Aricidea suecica",
-         Artal == 2016 & Flokkun == "Capitellidae" ~ "Capitella capitata",
-         Artal == 2016 & Flokkun == "Cirratulidae" ~ "Cirratulus cirratus",
-         Artal == 2016 & Flokkun == "Cossuridae" ~ "Cossura longocirrata",
-         Artal == 2016 & Flokkun == "Nephtyidae" ~ "Nephtys",
-         Artal == 2016 & Flokkun == "Pectinariidae" ~ "Pectinaria koreni",
-         Artal == 2016 & Flokkun == "Phyllodocida" ~ "Phyllodoce maculata",
-         Artal == 2016 & Flokkun == "Spio" ~ "Spio filicornis",
-         Artal == 2016 & Flokkun == "Spionidae" ~ "Spio filicornis",
-         Artal == 2016 & Flokkun == "Syllidae" ~ "Syllis",
-         Artal == 2016 & Flokkun == "Cardiidae" ~ "Cardium",
-         Artal == 2017 & Flokkun == "Mya" ~ "Mya arenaria",
-         Artal == 2017 & Flokkun == "Maldanidae" ~ "Praxillella praetermissa",
+         Flokkun == "Spionida" ~ "Spionidae",
+         Flokkun == "Terebellides stroemi" ~ "Terebellides stroemii",
+         Flokkun == "Ampharetinae" ~ "Ampharetidae",
+         Flokkun == "ostracoda" ~ "Ostracoda",
+         Flokkun == "Sabellidae" ~ "Sabellida",
+         Flokkun == "scalibregma inflatum" ~ "Scalibregma inflatum",
+         Flokkun == "sipunculida" ~ "Sipuncula",
+         Flokkun == "sipunculidae" ~ "Sipuncula",
+         Flokkun == "sipunculidea" ~ "Sipuncula",
+         Flokkun == "Nephtys" ~ "Nephthys",
+         Flokkun == "Nepthys" ~ "Nephthys",
+Artal == "1999" & Flokkun == "Ampharete acutifrons" ~ "Ampharetinae",
+Artal == "1999" & Flokkun == "Bivalvia" ~ "NA"        ,
+Artal == "2013" & Flokkun == "Harmothoe" ~ "Harmothoe extenuata"       ,
+Artal == "2013" & Flokkun == "Polynoidae" ~ "Harmothoe extenuata" ,
+Artal == "2014" & Flokkun == "Praxillella" ~ "Praxillella praetermissa",
+Artal == "2014" & Flokkun == "Syllidae" ~ "Syllis cornuta"             ,
+Artal == "2015" & Flokkun == "Syllidae" ~ "Syllis cornuta",
+Artal == "2015" & Flokkun == "Mya" ~ "Mya arenaria"        ,     
+Artal == "2015" & Flokkun == "Mytilidae" ~ "Mytilus edulis",
+Artal == "2015" & Flokkun == "Ampharetidae" ~ "NA"          ,
+Artal == "2016" & Flokkun == "Aricidea" ~ "Amphitrite cirrata"      ,
+Artal == "2016" & Flokkun == "Capitellidae" ~ "Capitella capitata"   ,  
+Artal == "2016" & Flokkun == "Cirratulidae" ~ "Cirratulus cirratus",
+Artal == "2016" & Flokkun == "Cossuridae" ~ "Cossura longocirrata",
+Artal == "2016" & Flokkun == "Nephtyidae" ~ "Nephthys"      ,
+Artal == "2016" & Flokkun == "Pectinariidae" ~ "Pectinaria koreni"     ,
+Artal == "2016" & Flokkun == "Phyllodocida" ~ "Phyllodoce maculata",
+Artal == "2016" & Flokkun == "Spio" ~ "Spio filicornis"            ,
+Artal == "2016" & Flokkun == "Spionidae" ~ "Spio filicornis",
+Artal == "2016" & Flokkun == "Syllidae" ~ "Syllis"           ,          
+Artal == "2016" & Flokkun == "Cardiidae" ~ "Cardium"          ,         
+Artal == "2016" & Flokkun == "Cardiidae" ~ "Cardium"           ,        
+Artal == "2017" & Flokkun == "Mya" ~ "Mya arenaria"  ,
+Artal == "2017" & Flokkun == "Maldanidae" ~ "Praxillella praetermissa",
+Artal == "1999" & Flokkun == "Ampharetinae" ~ "Ampharetidae",
+Artal == "2017" & Flokkun == "Ampharete" ~ "Ampharetidae"    ,
+Artal == "2017" & Flokkun == "Ampharete acutifrons" ~ "Ampharetidae",
+Artal == "2016" & Flokkun == "Lumbrineridae" ~ "Lumbrineris",
+Artal == "2015" & Flokkun == "Pholoe" ~ "Pholoe minuta"      ,          
+Artal == "2016" & Flokkun == "Pholoe" ~ "Pholoe minuta"       ,         
+Artal == "2017" & Flokkun == "Pholoe" ~ "Pholoe minuta"        ,    
+Artal == "1999" & Flokkun == "Musculus discors" ~ "Musculus",
+Artal == "2014" & Flokkun == "Mya" ~ "Mya arenaria"          ,   
+Artal == "2014" & Flokkun == "Mytilus edulis" ~ "Mytilidae",
+Artal == "2014" & Flokkun == "Nephtyidae" ~ "Nephthys"       ,
+Artal == "2014" & Flokkun == "Amphipoda" ~ "Protomedeia fasciata"    ,
+Artal == "2014" & Flokkun == "Tubificidae" ~ "Tubificoides kozloffi",
+Artal == "2014" & Flokkun == "Harmothoe" ~ "Harmothoe extenuata"     ,  
+Artal == "2015" & Flokkun == "Harmothoe" ~ "Harmothoe extenuata"      , 
+Artal == "2015" & Flokkun == "Amphipoda" ~ "Protomedeia fasciata",
+Artal == "2016" & Flokkun == "Balanus balanus" ~ "Balanus"       ,
+Artal == "2016" & Flokkun == "priapulidae" ~ "Priapulus caudatus" ,     
+Artal == "2016" & Flokkun == "Priapulidae" ~ "Priapulus caudatus"  ,    
+Artal == "2017" & Flokkun == "Harmothoe" ~ "Harmothoe extenuata"    ,   
+Artal == "1999" & Flokkun == "Leucon acutirostris" ~ "Cumacea"       ,  
+Artal == "1999" & Flokkun == "Eudorella emarginata" ~ "Cumacea",
        TRUE ~ Flokkun)) %>% 
      drop_na() 
 ```
+
+
+```{r taflafyrirjorund}
+
+   ekkiungvidi <- KolgrTaxa[-remove_ind,] 
+DF <- ekkiungvidi %>% 
+  filter(!Flokkun %in% c("harpacticoida", "Campanulariidae")) %>% 
+     mutate(
+       Flokkun = case_when(
+         Flokkun == "Spionida" ~ "Spionidae",
+         Flokkun == "Terebellides stroemi" ~ "Terebellides stroemii",
+         Flokkun == "Ampharetinae" ~ "Ampharetidae",
+         Flokkun == "ostracoda" ~ "Ostracoda",
+         Flokkun == "Sabellidae" ~ "Sabellida",
+         Flokkun == "scalibregma inflatum" ~ "Scalibregma inflatum",
+         Flokkun == "sipunculida" ~ "Sipuncula",
+         Flokkun == "sipunculidae" ~ "Sipuncula",
+         Flokkun == "sipunculidea" ~ "Sipuncula",
+         Flokkun == "Nephtys" ~ "Nephthys",
+         Flokkun == "Nepthys" ~ "Nephthys",
+Artal == "1999" & Flokkun == "Ampharete acutifrons" ~ "Ampharetinae",
+Artal == "1999" & Flokkun == "Bivalvia" ~ "NA"        ,
+Artal == "2013" & Flokkun == "Harmothoe" ~ "Harmothoe extenuata"       ,
+Artal == "2013" & Flokkun == "Polynoidae" ~ "Harmothoe extenuata" ,
+Artal == "2014" & Flokkun == "Praxillella" ~ "Praxillella praetermissa",
+Artal == "2014" & Flokkun == "Syllidae" ~ "Syllis cornuta"             ,
+Artal == "2015" & Flokkun == "Syllidae" ~ "Syllis cornuta",
+Artal == "2015" & Flokkun == "Mya" ~ "Mya arenaria"        ,     
+Artal == "2015" & Flokkun == "Mytilidae" ~ "Mytilus edulis",
+Artal == "2015" & Flokkun == "Ampharetidae" ~ "NA"          ,
+Artal == "2016" & Flokkun == "Aricidea" ~ "Amphitrite cirrata"      ,
+Artal == "2016" & Flokkun == "Capitellidae" ~ "Capitella capitata"   ,  
+Artal == "2016" & Flokkun == "Cirratulidae" ~ "Cirratulus cirratus",
+Artal == "2016" & Flokkun == "Cossuridae" ~ "Cossura longocirrata",
+Artal == "2016" & Flokkun == "Nephtyidae" ~ "Nephthys"      ,
+Artal == "2016" & Flokkun == "Pectinariidae" ~ "Pectinaria koreni"     ,
+Artal == "2016" & Flokkun == "Phyllodocida" ~ "Phyllodoce maculata",
+Artal == "2016" & Flokkun == "Spio" ~ "Spio filicornis"            ,
+Artal == "2016" & Flokkun == "Spionidae" ~ "Spio filicornis",
+Artal == "2016" & Flokkun == "Syllidae" ~ "Syllis"           ,          
+Artal == "2016" & Flokkun == "Cardiidae" ~ "Cardium"          ,         
+Artal == "2016" & Flokkun == "Cardiidae" ~ "Cardium"           ,        
+Artal == "2017" & Flokkun == "Mya" ~ "Mya arenaria"  ,
+Artal == "2017" & Flokkun == "Maldanidae" ~ "Praxillella praetermissa",
+Artal == "1999" & Flokkun == "Ampharetinae" ~ "Ampharetidae",
+Artal == "2017" & Flokkun == "Ampharete" ~ "Ampharetidae"    ,
+Artal == "2017" & Flokkun == "Ampharete acutifrons" ~ "Ampharetidae",
+Artal == "2016" & Flokkun == "Lumbrineridae" ~ "Lumbrineris",
+Artal == "2015" & Flokkun == "Pholoe" ~ "Pholoe minuta"      ,          
+Artal == "2016" & Flokkun == "Pholoe" ~ "Pholoe minuta"       ,         
+Artal == "2017" & Flokkun == "Pholoe" ~ "Pholoe minuta"        ,    
+Artal == "1999" & Flokkun == "Musculus discors" ~ "Musculus",
+Artal == "2014" & Flokkun == "Mya" ~ "Mya arenaria"          ,   
+Artal == "2014" & Flokkun == "Mytilus edulis" ~ "Mytilidae",
+Artal == "2014" & Flokkun == "Nephtyidae" ~ "Nephthys"       ,
+Artal == "2014" & Flokkun == "Amphipoda" ~ "Protomedeia fasciata"    ,
+Artal == "2014" & Flokkun == "Tubificidae" ~ "Tubificoides kozloffi",
+Artal == "2014" & Flokkun == "Harmothoe" ~ "Harmothoe extenuata"     ,  
+Artal == "2015" & Flokkun == "Harmothoe" ~ "Harmothoe extenuata"      , 
+Artal == "2015" & Flokkun == "Amphipoda" ~ "Protomedeia fasciata",
+Artal == "2016" & Flokkun == "Balanus balanus" ~ "Balanus"       ,
+Artal == "2016" & Flokkun == "priapulidae" ~ "Priapulus caudatus" ,     
+Artal == "2016" & Flokkun == "Priapulidae" ~ "Priapulus caudatus"  ,    
+Artal == "2017" & Flokkun == "Harmothoe" ~ "Harmothoe extenuata"    ,   
+Artal == "1999" & Flokkun == "Leucon acutirostris" ~ "Cumacea"       ,  
+Artal == "1999" & Flokkun == "Eudorella emarginata" ~ "Cumacea",
+       TRUE ~ Flokkun)) %>% 
+     drop_na() 
+
+ df <- DF %>% mutate(Artal = factor(Artal)) %>% 
+  filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3") & Artal==1999) %>% 
+  ddply(.(Phylum, Class, Flokkun, stod),summarise, Nfm=sum(Nfm)) %>% 
+  pivot_wider(names_from = c(stod), values_from = Nfm) %>% 
+  arrange(Phylum,Class)
+df <- df[, c('Phylum', 'Class', 'Flokkun', 'A7','B5','B8','C4','E3','E4')]  
+
+   write.xlsx(df, file = "Fjoldi_a_fermetra_4.xlsx",
+             sheetName = "1999", showNA = FALSE, append = FALSE)
+   
+   for (i in 2013:2017) {
+  df <- DF %>% 
+    mutate(Artal = factor(Artal)) %>% 
+    filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3") & Artal==i) %>% 
+    ddply(.(Phylum, Class, Flokkun, stod),summarise, Nfm=sum(Nfm)) %>% 
+    pivot_wider(names_from = c(stod), values_from = Nfm) %>% 
+    arrange(Phylum,Class)
+  df <- df[, c('Phylum','Class', 'Flokkun', 'A7','B5','B8','C4','E3','E4')]  
+  write.xlsx(df, file = "Fjoldi_a_fermetra_4.xlsx",
+             sheetName=as.character(i), showNA = F, append=TRUE)
+   }
+   
+
+```
+
+
+
+```{r outliers}
+#Með outliers
+data_mat <- jorundur[, c("Flokkun", "stod", "N")]
+data_mat_wide <-data.table::dcast(data_mat, Flokkun ~ stod, value.var = "N")
+rownames(data_mat_wide) <- data_mat_wide[, 1]
+data_mat_wide <- data_mat_wide[, -1]
+data_mat_wide <- decostand(data_mat_wide, method = "hellinger")
+my_pca <- rda(data_mat_wide)
+eigenvals <- my_pca$CA$eig
+eigenvals
+pca <- prcomp(data_mat_wide, scale = F)
+# Create a biplot of the first two principal components
+biplot(pca, scale = 0)
+# Add arrows representing the dimensions
+arrows(0, 0, pca$rotation[,1], pca$rotation[,2], length = 0.1, col = "red", lwd = 2)
+
+```
+
+```{r inliers}
+#Með outliers
+bp <- boxplot.stats(jorundur$N)
+outliers <- bp$out
+# Remove outliers
+data <- jorundur[!jorundur$N %in% outliers,]
+# Create a new box plot without outliers
+boxplot(data$N)
+bp <- boxplot.stats(data$N)
+outliers <- bp$out
+# Remove outliers
+data <- data[!data$N %in% outliers,]
+# Create a new box plot without outliers
+boxplot(data$N)
+
+data_mat <- data[, c("Flokkun", "Artal", "N")]
+data_mat_wide <-data.table::dcast(data_mat, Flokkun ~ Artal, value.var = "N")
+rownames(data_mat_wide) <- data_mat_wide[, 1]
+data_mat_wide <- data_mat_wide[, -1]
+data_mat_wide <- decostand(data_mat_wide, method = "hellinger")
+my_pca <- rda(data_mat_wide)
+eigenvals <- my_pca$CA$eig
+eigenvals
+pca <- prcomp(data_mat_wide, scale = T)
+# Create a biplot of the first two principal components
+biplot(pca, scale = 0)
+# Add arrows representing the dimensions
+arrows(0, 0, pca$rotation[,1], pca$rotation[,2], length = 0.1, col = "red", lwd = 2)
+
+```
+
+
+
+
+```{r}
+
+
+```
+

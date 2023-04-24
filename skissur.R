@@ -1,9 +1,159 @@
+# Aggregate data to sum 'N' values for duplicate rows
+data1_agg <- jorundur %>% group_by(Artal, stod, Flokkun) %>% summarise(N = sum(N))
+
+# Prepare data for ordination
+data1_wide <- data1_agg %>% spread(key = Flokkun, value = N, fill = 0)
+
+# setja inn dýpið
+new_env_data <- botngerd[,1:3] 
+colnames(new_env_data) <- c("stod", "dypi", "Síld 2013")
+gledipillan_dypi <- merge(gledipillan, new_env_data, by = "stod")
 
 
-data.frame(Artal=c(),
-           Flokkun = c(),
-           ER = c(),
-           VERDUR = c())
+merged_data <- merge(data1_wide, gledipillan_dypi, by = c("Artal", "stod"))
+
+rownames(merged_data) <- paste(merged_data$Artal, merged_data$stod, sep = "_")
+merged_data <- merged_data[, -c(1,2)] # Remove the 'Year' and 'Station' columns
+
+# Separate environmental and species data
+env_data <- merged_data[, c("20um","63um","125um","250um","1000um","tap","sd","dypi", "Síld 2013")]
+species_data <- merged_data[, !(names(merged_data) %in% c("20um","63um","125um","250um","1000um","tap","sd","dypi", "Síld 2013"))]
+
+#species_data <- log(species_data + 1)
+
+
+# Perform RDA
+rda_result <- rda(species_data ~ ., data = env_data)
+
+# Plot the ordination
+plot(rda_result)
+
+# Add points with the labels
+text(rda_result, display = "sites", col = "blue")
+
+# Perform permutation test
+rda_perm <- anova.cca(rda_result, by = "terms", permutations = 999)
+print(rda_perm)
+
+
+# Perform CA
+ca_result <- cca(species_data)
+
+# Perform DCA
+dca_result <- decorana(species_data)
+
+
+# Plot CA results
+plot(ca_result)
+
+# Add points with the labels
+text(ca_result, display = "sites", col = "blue")
+
+# Plot DCA results
+plot(dca_result)
+
+# Add points with the labels
+text(dca_result, display = "sites", col = "blue")
+
+
+
+
+
+
+
+
+
+
+library(vegan)
+
+data_mat <- jorundur[, c("Flokkun", "stod", "N")]
+data_mat_wide <-data.table::dcast(data_mat, Flokkun ~ stod, value.var = "N")
+rownames(data_mat_wide) <- data_mat_wide[, 1]
+data_mat_wide <- data_mat_wide[, -1]
+data_mat_wide <- decostand(data_mat_wide, method = "hellinger")
+my_pca <- rda(data_mat_wide)
+eigenvals <- my_pca$CA$eig
+eigenvals
+
+diversity(data_mat_wide, index = "simpson")
+diversity(data_mat_wide, index = "shannon")
+
+nmds <- metaMDS(data_mat_wide)
+stressplot(nmds)
+gof <- goodness(nmds)
+plot(nmds, display = "sites", type = "n")
+points(nmds, display = "spec", cex = 2*gof/mean(gof)) "sites og spec öfugt"
+text(nmds, display = "spec", cex = .7)
+
+DCA <- decorana(data_mat_wide)
+ordiplot (DCA, display = 'sp', type = 'n')
+orditorp (DCA, display = 'sp')
+
+plot(nmds)
+plot(deco)
+text(deco, display = "sites", cex=0.7, col="blue")
+text(deco, display = "spec", cex=1, col="red")
+
+
+dist_matrix <- vegdist(jorundur[,4], method = "bray")
+adonis_result <- adonis2(dist_matrix ~ Artal, data = jorundur)
+adonis_result$aov.tab #nota þetta (p<o.oo1)
+
+
+bp <- boxplot.stats(jorundur$N)
+outliers <- bp$out
+# Remove outliers
+data <- jorundur[!jorundur$N %in% outliers,]
+# Create a new box plot without outliers
+boxplot(data$N)
+bp <- boxplot.stats(data$N)
+outliers <- bp$out
+# Remove outliers
+data <- data[!data$N %in% outliers,]
+# Create a new box plot without outliers
+boxplot(data$N)
+
+
+data_mat <- data[, c("Flokkun", "Artal", "N")]
+data_mat_wide <-data.table::dcast(data_mat, Flokkun ~ Artal, value.var = "N")
+rownames(data_mat_wide) <- data_mat_wide[, 1]
+data_mat_wide <- data_mat_wide[, -1]
+data_mat_wide <- decostand(data_mat_wide, method = "hellinger")
+
+nmds <- metaMDS(data_mat_wide)
+stressplot(nmds)
+gof <- goodness(nmds)
+plot(nmds, display = "sites", type = "n")
+points(nmds, display = "spec", cex = 2*gof/mean(gof))
+text(nmds, display = "spec", cex = .7)
+
+#
+my_pca <- rda(data_mat_wide)
+eigenvals <- my_pca$CA$eig
+eigenvals # Fyrstu 2 útskýra bara 37%
+plot(my_pca, type = "n")
+points(my_pca, display = "sites")
+text(my_pca, display = "species")
+
+
+
+
+
+
+henda <- read.csv(here::here("listifyrirord.csv"))
+
+
+jorundur <- df %>% 
+  filter(!Flokkun %in% c("harpacticoida", "Campanulariidae")) %>% 
+  mutate(
+    Flokkun = case_when(
+      for (i in 1:length(henda$New_Column)) {
+        henda$New_Column[i]
+        TRUE ~ Flokkun
+      }
+    )
+  ) %>%
+  drop_na()
   
   
 #hafa hópa í ordination
