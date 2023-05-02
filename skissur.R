@@ -10,7 +10,7 @@ colnames(new_env_data) <- c("stod", "dypi", "Síld 2013")
 gledipillan_dypi <- merge(gledipillan, new_env_data, by = "stod")
 
 
-merged_data <- merge(data1_wide, gledipillan_dypi, by = c("Artal", "stod"))
+merged_data <- merge(data1_wide, gledipillan_dypi, by = c("Artal", "stod")) # Hér dettur 1999 út
 
 rownames(merged_data) <- paste(merged_data$Artal, merged_data$stod, sep = "_")
 merged_data <- merged_data[, -c(1,2)] # Remove the 'Year' and 'Station' columns
@@ -1909,3 +1909,389 @@ knitr::kable(
 f <- file.path(list.files(here::here("skjol/lesefni/feeding"),pattern = "pdf",full.names = T))
 tafla <- tabulizer::extract_tables(f)
 tabbla <- do.call(rbind,tafla)
+
+
+
+
+
+
+
+
+
+
+
+remove_list <- paste(c(
+  "nýsestir",
+  "ungviði",
+  "ungv",
+  "ungv.",
+  "juv",
+  ".",
+  "ath"
+), collapse = '|') # Röðin skiptir ekki máli til dæmis "." á undan "sp." eða öfugt. Það eru jafn mörg tilfelli af "sp." í allartalningar$Flokkun þó svo "." sé á undan
+
+remove_ind <- lapply(strsplit(remove_list , "\\|")[[1]] , \(x) grep(x , geggjad$gamalt , fixed = T)) |> 
+  unlist() |> 
+  unique()
+
+
+
+ungvidi <- geggjad[remove_ind,] 
+
+ungv <- ddply(ungvidi,.(Flokkun,Artal),summarise, N =sum(Nu))
+
+
+
+Fjölþátta greining eingöngu 2013-2017
+2. lumpa saman öllum stöðvum (sem við notuðum) Agnars í eina. 
+3. 1999-2017
+Bray-Curtis
+Multi dimensional scaling 
+(meginþáttagreiningu og fylgnigreiningu með reikniforritinu R (R Core Team, 2014;  Oksanen o. ., 2015))
+Passa upp á að 1999 sé sambærileg m2 þegar skoðað er þéttleikabreytingar á tíma
+Fjöldi teg á stöð sé óháð flatarmáli
+
+# 1. Marine biology
+# 2. Marine biology research
+# 3. Marine pollution bullettin
+
+
+A <- list()
+for (i in c("1999", "2013", "2014", "2015", "2016", "2017")) {
+  df <- DF[DF$Artal==i,]
+  #df <- jorundur[jorundur$Artal==i,]
+  A[[i]] <- names(sort(sapply(split(df,df$Flokkun), function(x) sum(x$N)), decreasing = T)[1:10])
+}
+gagn <- table(unlist(A))
+gagn <- gagn[gagn>1]
+
+rass <- DF[DF$Flokkun %in% names(gagn),] %>% ddply(.(Artal, stod,Flokkun),summarise, N=sum(N), .drop=FALSE)%>% 
+  filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
+  mutate(Artal = factor(Artal))
+
+rass%>% 
+  ggplot(aes(x = Artal, y = N)) +
+  facet_wrap(~Flokkun, scales = "free") +
+  geom_bar(aes(fill = stod), stat = "identity", color="black",position=position_dodge(preserve = "single"))  +
+  xlab("") + 
+  labs(caption = "(Botndýr í Kolgrafafirði 1999 og 2013-2017)") +
+  theme_pubclean()
+
+BBIlisti <- list()
+BBIastand <- list()
+nEQR <- list()
+for (i in unique(rass$Artal)) {
+  my_BBI <- rass %>% filter(Artal %in% c(i)) %>%
+    select(-Artal) %>%
+    pivot_wider(names_from = stod, values_from = N) %>% 
+    BBI()
+  # calculating nEQR values and ecological quality status
+  BBIlisti[[i]] <- as.data.frame(cbind(my_BBI$BBI, Artal=i))
+  BBIastand[[i]] <- my_BBI$BBIclass
+  nEQR[[i]] <- as.data.frame(nEQR(my_BBI$BBI)[1])
+}
+
+ress <- do.call(rbind,nEQR)
+names(ress) <- c("nAMBI","nISI","nNSI","nNQI1","nShannon","nEQR")
+mm <- as.matrix(ress, ncol = 7)
+
+heatmap.2(x = mm, Rowv = FALSE, Colv = FALSE, dendrogram = "none",
+          cellnote = mm, notecol = "black", notecex = .51,
+          trace = "none", key = FALSE, srtCol=0,   adjCol = c(0.5,1))
+
+heatmap.2(mm,dendrogram = "row", srtCol=0,   adjCol = c(0.5,1))
+
+
+ress %>% 
+  select(nNQI1, nAMBI, nShannon) %>% 
+  as.matrix() %>% 
+  heatmap.2(dendogram = "row", srtCol=0,   adjCol = c(0.5,1)) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+f <- file.path(list.files(here::here("set"),pattern = "pdf",full.names = T))
+tafla <- tabulizer::extract_tables(f, pages = 17:53)
+tabbla <- do.call(rbind,tafla)
+
+B<-list()
+for (i in names(gagn)) {
+  B[[i]]<-tabbla[grepl(substr(i,1,6),tabbla[,4]),]
+}
+
+td <- do.call(rbind,B)
+td_nytt <- unname(td[,1])
+Tdf <- td[c(3,32,44,50,74,86,90,93,103,110,113,117,120),]
+Tdf[,1] <- unname(Tdf[,1])
+
+
+
+Tdf <- structure(c("POSE", "POSE", "POER", "POER", "MOBI", "POSE", "POER", 
+                   "ANOL", "POSE", "POSE", "CRAM", "POSE", "POSE", "POSE", "0248", 
+                   "0252", "0214", "0220", "0456", "0248", "0186", "0000", "0270", 
+                   "0310", "0810", "0304", "0272", "0310", "0450", "0500", "0300", 
+                   "0590", "0520", "0950", "0687", "0001", "1140", "1507", "1490", 
+                   "1680", "1745", "0310", "Capitella capitata", "Chaetozone setosa", 
+                   "Eteone longa", "Harmothoe", "Macoma calcarea", "Mediomastus fragilis", 
+                   "Microphthalmus aberrans", "Oligochaeta", "Ophelina acuminata", 
+                   "Polydora", "Protomedeia fasciata", "Scalibregma inflatum", 
+                   "Scoloplos armiger", "Spionidae", "SS", "SR", "SR", "SR", 
+                   "SR", "SS", "SR", "SS", "SS", "SR", "SR", "SS", "SS", "SR", "D", 
+                   "D", "M", "M", "D", "D", "M", "M", "M", "D", "D", "M", "M", "D", 
+                   "F", "F", "F", "F", "F", "F", "F", "F", "F", "T", "T", "B", "F", 
+                   "T", "Om", "Om", "Ca", "Ca", "Om", "Om", "He", "Om", "Om", "Om", 
+                   "Om", "Om", "Om", "Om", "sed/pom/mic", "sed/pom/mic/dia", "mac", 
+                   "mac", "sed/pom/mic", "sed/pom/mic", "dia", "pom/mic/dia", "sed/pom/mic", 
+                   "sed/pom/mic/dia/phy", "pom/mic/dia/phy", "sed/pom/mic", "sed/pom/mic", 
+                   "sed/pom/mic/dia/phy", "De", "De", "Pr/De", "Pr", "De/Su", "De", 
+                   "Gr", "Dt", "De", "De/Su", "Su", "De", "De", "De/Su", "SS-De", 
+                   "SR-De", "SR-Pr-mac", "SR-Pr-mac", "SR-De", "SS-De", "SR-He-mic", 
+                   "SS-Om-mic", "SS-De", "SR-De", "SR-Su", "SS-De", "SS-De", "SR-De"
+), dim = c(14L, 11L), dimnames = list(NULL, c("Major Group", 
+                                              "Family code", "Species code", "Flokkun", "Food Source", 
+                                              "Motility", "Habit", "Om/Ca/He", "Food size/type", "FeedMode", 
+                                              "Feeding guild")))
+
+
+Tdf <- as.data.frame(Tdf[-14,])
+
+Dt <- merge(rass, 
+            Tdf,
+            all.x = T,
+            by = "Flokkun")
+
+Dt %>% 
+  ggplot(aes(x = Artal, y = N)) +
+  facet_wrap(~Dt$`Major Group`, scales = "free") +
+  geom_bar(aes(fill = stod), stat = "identity", color="black",position="dodge")  +
+  xlab("") + 
+  labs(caption = "(Botndýr í Kolgrafafirði 1999 og 2013-2017)")
+
+# ANOL Ph. Annelida, Oligochaeta (oligochaetes)
+# MOBI Ph. Mollusca, Cl. Bivalvia (clams, scallops, mussels, oysters, etc.) 
+# POER Ph. Annelida, Polychaeta Errantia 349 
+# POSE Ph. Annelida, Polychaeta Sedentaria 
+
+
+data1_agg <- ddply(jorundur,.(Artal, stod, Flokkun), summarise, N = sum(N))
+
+
+f <- file.path(list.files(here::here("set"),pattern = "pdf",full.names = T))
+tafla <- tabulizer::extract_tables(f, pages = 17:48)
+tabbla <- do.call(rbind,tafla)
+
+# B<-list()
+# for (i in names(gagn)) {
+#   B[[i]]<-tabbla[grepl(substr(i,1,6),tabbla[,4]),]
+# }
+# 
+# 
+# 
+# library(dplyr)
+# table_df <- bind_rows(lapply(B, as.data.frame))
+# 
+# colnames(table_df) <- c("Major Group", "Family code", "Species code", "Taxon name", "Food Source", 
+#                         "Motility", "Habit", "Om/Ca/He", "Food size/type", "FeedMode", 
+#                         "Feeding guild")
+
+
+tabbla_df <- as.data.frame(tabbla)
+colnames(tabbla_df) <- c("Major Group", "Family code", "Species code", "Taxon name", "Food Source", 
+                         "Motility", "Habit", "Om/Ca/He", "Food size/type", "FeedMode", 
+                         "Feeding guild")
+table_df <- subset(tabbla_df, !grepl("^Major", `Major Group`))
+
+
+find_closest_match <- function(x, y) {
+  string_distances <- stringdist::stringdistmatrix(tolower(x), tolower(y), method = "jw")
+  y[apply(string_distances, 1, which.min)]
+}
+
+data1_agg$matched_taxon_name <- find_closest_match(data1_agg$Flokkun, table_df$`Taxon name`)
+
+# nákvæm pörun:
+find_exact_match <- function(x, y) {
+  sapply(x, function(Flokkun) {
+    matched <- y[Flokkun == y]
+    if (length(matched) > 0) {
+      return(matched[1])
+    } else {
+      return(NA_character_)
+    }
+  }, simplify = "character")
+}
+
+
+table_df$`Cleaned Taxon name` <- gsub("\\s*(sp\\.|spp\\.|indet\\.)", "", table_df$`Taxon name`)
+
+data1_agg$exact_taxon_name <- find_exact_match(data1_agg$Flokkun, table_df$`Cleaned Taxon name`)
+unmatched_rows <- is.na(data1_agg$exact_taxon_name)
+data1_agg$matched_taxon_name[unmatched_rows] <- find_closest_match(data1_agg$Flokkun[unmatched_rows], table_df$`Cleaned Taxon name`)
+data1_agg$final_taxon_name <- ifelse(is.na(data1_agg$exact_taxon_name), data1_agg$matched_taxon_name, data1_agg$exact_taxon_name)
+merged_data <- merge(data1_agg, table_df, by.x = "final_taxon_name", by.y = "Taxon name")
+
+
+
+
+
+
+grouped_data <- ddply(data_2013, .(`Major Group`, stod), summarise, total_N = sum(N, na.rm = TRUE), .drop = F)
+
+
+# Load the tidyverse package
+library(tidyverse)
+
+library(plyr)
+
+# Group data by year, major group, and station
+grouped_data <- ddply(merged_data, .(Artal, `Major Group`, stod), summarise, total_N = sum(N, na.rm = TRUE))
+
+# Calculate station totals for each year
+station_totals <- ddply(merged_data, .(Artal, stod), summarise, station_total_N = sum(N))
+
+# Add station totals to the grouped data
+grouped_data_with_totals <- join(grouped_data, station_totals, by = c("Artal", "stod"))
+
+# Calculate proportions
+grouped_data_with_totals$proportion <- grouped_data_with_totals$total_N / grouped_data_with_totals$station_total_N
+
+# Spread the data into a wide format
+wide_data <- reshape2::dcast(grouped_data_with_totals, Artal + stod ~ `Major Group`, value.var = "proportion", fill = 0)
+
+# Print the wide data
+print(wide_data)
+
+
+for (i in c("1999",2013:2017)) {
+  wide_data_B <- wide_data[wide_data$Artal ==i,]
+  wide_dataB <- t(wide_data_B[,-c(1:2)])
+  #seti2 <- prop.table(as.matrix(seti2), 2)
+  colnames(wide_dataB) <- wide_data_B$stod
+  
+  barplot(wide_dataB,main = unique(wide_data_B$Artal))
+  require(graphics)
+  #legend("topright",horiz = F, rownames(wide_dataB),fill = gray.colors(12))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+library(ggplot2)
+library(reshape2)
+
+# Define selected columns for plotting
+selected_cols <- c("Major Group", "Family code", "Species code", 
+                   "Food Source", "Motility", "Habit", 
+                   "Om/Ca/He", "Food size/type", "FeedMode", 
+                   "Feeding guild")
+
+# Loop through selected columns
+for (col in selected_cols) {
+  LabX<-col
+  # Create a data frame for the current column
+  data_col <- merged_data[, c("Artal", "stod", col, "N")]
+  
+  # Remove rows with missing values
+  data_col <- na.omit(data_col)
+  colnames(data_col)[3] <- "col"
+  # Aggregate N values by Artal, stod, and the current column
+  agg_data <- aggregate(N ~ Artal + stod + col, data_col, sum)
+  
+  # Compute proportions for each station
+  prop_data <- ddply(agg_data, .(Artal, stod), transform, prop_N = N / sum(N))
+  
+  # Reshape data to long format
+  melted_data <- melt(prop_data, id.vars = c("Artal", "stod", "col"))
+  
+  # Create stacked bar plot for each year and station
+  for (year in unique(merged_data$Artal)) {
+    for (station in unique(merged_data$stod)) {
+      
+      # Filter data for the current year and station
+      plot_data <- subset(melted_data, Artal == year & stod == station)
+      plot_data <- plot_data[plot_data$variable!="N",]
+      # Create stacked bar plot
+      print(ggplot(plot_data, aes(x = col, y = value, fill = variable)) +
+              geom_bar(stat = "identity", position = "stack") +
+              scale_fill_manual(values = c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3")) +
+              xlab(LabX) +
+              ylab("Proportion") +
+              ggtitle(paste("Station ", station, " - Year ", year, sep = "")) +
+              theme_bw())
+    }
+  }
+}
+
+
+
+
+
+df <- data.frame(find_name = c("major_group", "food_source", "motility", "habit", "om_ca_he", "food_size_type", "feed_mode", "feeding_guild"),
+                 text = c(
+                   'major_group: Ph. Mollusca, Cl. Gastropoda (snails) "MOGA",\n Ph. Annelida, Polychaeta Sedentaria "POSE", Ph. Arthropoda, SubPh. Chelicerata, Cl. Arachnida (mites) "CHAC", Ph. Arthropoda, SubPh. Crustacea, O. Amphipoda (amphipods) "CRAM", Ph. Annelida, Polychaeta Errantia "POER", Ph. Mollusca, Cl. Bivalvia (clams, scallops, mussels, oysters, etc.) "MOBI", Ph. Cnidaria, Hydrozoa (hydroids) "CNHY", Ph. Echinodermata, Cl. Asteroidea (seastars) "ECAS", Ph. Arthropoda, SubPh. Crustacea, Cl. Ostracoda (seed shrimp) "CROS", Ph. Priapulida (penis worms) "PRIA", Ph. Arthropoda, SubPh. Crustacea, O. Isopoda "CRIS", Ph. Annelida, Oligochaeta (oligochaetes) "ANOL"',
+                   'food_source: (epibenthic (EP), surface (SR), subsurface (SS);',
+                   'om_ca_he: (carnivorous (Ca), herbivorous (He) omnivorous (Om);',
+                   'food_size_type: (sediment (sed), particulate organic matter (pom), benthic microfauna (e.g., diatoms and other single-celled organisms, mic), benthic meiofauna (organisms retained on a <500 μm sieve, mei), benthic macrofauna (organisms retained on a >500 μm sieve, including macroalgae, mac), phytoplankton (phy), zooplankton (zoo) terrestrial material (e.g., wood, terr).',
+                   'feed_mode: Deposit feeder (ingests sediment; De), Detritus feeder (ingests particular matter only, without sediment; Dt), Suspension/Filter feeder (strains particles from the water, Su), Predator (eats live animals only; Pr), Scavenger (carrion only; Sc), Suctorial parasite (Sp), Chemosynthetic (with symbiotic bacteria, Ch), Lignivorous (eats wood, Li), Grazer (feeds by scraping, either on algae or sessile animals, Gr), and Browsing (feeds by tearing or gathering particular items, Br).',
+                   'motility: Indicates if an animal is completely sessile (S), is able to move, but movement isn’t necessary for feeding (discretely motile, D), or moves actively, and movement is required for feeding (motile, M) (after Fauchald and Jumars, 1979).',
+                   'habit: An animal may be free-living (may live on surface or actively burrow, F), Commensal (living with but not harming host, C), Tubiculous (T), Burrow-dwelling (sedentary, living in burrow, B), Encrusting (requiring a large point of attachment, e.g., compound ascidians or encrusting bryozoans, R), Attached (to hard substrate, requiring just one point of attachment, e.g., solitary ascidians or calcareous sponges, A), Parasitic (feeding directly on host, X), Anchored in the mud (sedentary, e.g., sea pens, or burrowing anemones, U) and Planktonic (spending the majority of its life cycle in the water column, P).',
+                   'feeding_guild: (1) food source (epibenthic (EP), surface (SR), subsurface (SS); (2) diet type: (carnivorous (Ca), herbivorous (He) omnivorous (Om); (3) food type/size: (sediment (sed), particulate organic matter (pom), benthic microfauna (e.g., diatoms and other single-celled organisms, mic), benthic meiofauna (organisms retained on a <500 μm sieve, mei), benthic macrofauna (organisms retained on a >500 μm sieve, including macroalgae, mac), phytoplankton (phy), zooplankton (zoo) terrestrial material (e.g wood, terr), or symbiotic chemoautotrophic bacteria (sym), fish (fis) and (4) feeding mode Deposit feeder (ingests sediment; De), Detritus feeder (ingests particular matter only, without sediment; Dt), Suspension/Filter feeder (strains particles from the water, Su), Predator (eats live animals only; Pr), Scavenger (carrion only; Sc), Suctorial parasite (Sp), Chemosynthetic (hosting chemoautotrophic symbiotic bacteria, Ch), Lignivorous (eats wood, Li), Grazer (feeds by scraping, either on algae or sessile animals, Gr), and Browsing (feeds by tearing or gathering particular items, Br).'))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"Acanthocardia echinata"  table_df[table_df$`Cleaned Taxon name` %in% "Cardiidae",]
+"Abra nitida" table_df[table_df$`Cleaned Taxon name` %in% "Semelidae",]
+"Arctica islandica" table_df[table_df$`Cleaned Taxon name` %in% "Bivalvia",]
+"Aricidea suecica"  table_df[table_df$`Cleaned Taxon name` %in% "Aricidea",]
+"Caprella septentrionalis"  table_df[table_df$`Cleaned Taxon name` %in% "Caprella",]
+"Acanthocardia tuberculata"  table_df[table_df$`Cleaned Taxon name` %in% "Cardiidae",]
+"Crassicorophium bonellii"  table_df[table_df$`Cleaned Taxon name` %in% "Corophium",]
+"Parvicardium minimum"  table_df[table_df$`Cleaned Taxon name` %in% "Cardiidae",]
+"Nereimyra punctata"  table_df[table_df$`Cleaned Taxon name` %in% "Hesionidae",]
+"Eunoe nodosa"  table_df[table_df$`Cleaned Taxon name` %in% "Eunoe",]
+"Glycera capitata"  table_df[table_df$`Cleaned Taxon name` %in% "Glycera",]
+"Cistenides granulata"  table_df[table_df$`Cleaned Taxon name` %in% "Pectinaria",]
+"Kurtiella bidentata"  table_df[table_df$`Cleaned Taxon name` %in% "Lasaeidae",]
+"Margarites groenlandicus"  table_df[table_df$`Cleaned Taxon name` %in% "Margarites",]
+"Schistomeringos nigridentata"  table_df[table_df$`Cleaned Taxon name` %in% "Dorvilleidae",]
+"Cistenides hyperborea"  table_df[table_df$`Cleaned Taxon name` %in% "Pectinaria",]
+"Tunicata" NA
+"Parvicardium pinnulatum"  table_df[table_df$`Cleaned Taxon name` %in% "Cardiidae",]
+"Dexamine thea"  table_df[table_df$`Cleaned Taxon name` %in% "Amphipoda",]
+"Abra prismatica"  table_df[table_df$`Cleaned Taxon name` %in% "Semelidae",]
+"Abra prismatica"  table_df[table_df$`Cleaned Taxon name` %in% "Semelidae",]
+
+
