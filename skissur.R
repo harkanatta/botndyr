@@ -2292,6 +2292,94 @@ df <- data.frame(find_name = c("major_group", "food_source", "motility", "habit"
 "Parvicardium pinnulatum"  table_df[table_df$`Cleaned Taxon name` %in% "Cardiidae",]
 "Dexamine thea"  table_df[table_df$`Cleaned Taxon name` %in% "Amphipoda",]
 "Abra prismatica"  table_df[table_df$`Cleaned Taxon name` %in% "Semelidae",]
-"Abra prismatica"  table_df[table_df$`Cleaned Taxon name` %in% "Semelidae",]
+"Abra prismatica"  table_df[table_df$`Cleaned Taxon name` %in% "Sternaspis nr. fossor",]
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+find_taxon_match <- function(x, taxon_levels) {
+  matched_taxon <- rep(NA_character_, length(x))
+  found_match <- rep(FALSE, length(x))
+  
+  for (level in taxon_levels) {
+    if (all(found_match)) break
+    
+    level_taxon <- find_exact_match(x[!found_match], table_df[[level]])
+    level_matched <- !is.na(level_taxon)
+    matched_taxon[!found_match][level_matched] <- level_taxon[level_matched]
+    found_match[!found_match] <- level_matched
+  }
+  
+  return(matched_taxon)
+}
+
+
+taxon_levels <- c("Species", "Genus", "Family", "Superfamily", "Order", "Superorder", "Subterclass", "Infraclass", "Subclass", "Class", "Phylum", "Kingdom")
+KolgrTaxa$exact_taxon_name <- find_taxon_match(KolgrTaxa$Flokkun, taxon_levels)
+
+unmatched_rows <- is.na(KolgrTaxa$exact_taxon_name)
+KolgrTaxa$final_taxon_name <- KolgrTaxa$exact_taxon_name
+merged_data <- merge(KolgrTaxa, table_df, by.x = "final_taxon_name", by.y = "Taxon name", all.x = TRUE)
+
+
+
+
+
+find_taxon_match <- function(x, kolgr_taxa, y) {
+  matched_taxon <- rep(NA_character_, length(x))
+  taxon_levels <- c("Genus", "Family", "Superfamily", "Order", "Superorder", "Subterclass", "Infraclass", "Subclass", "Class", "Phylum", "Kingdom")
+  
+  for (i in 1:length(x)) {
+    found_match <- FALSE
+    
+    taxon_name <- find_exact_match(x[i], y$`Cleaned Taxon name`)
+    if (!is.na(taxon_name)) {
+      matched_taxon[i] <- taxon_name
+      found_match <- TRUE
+    }
+    
+    if (!found_match) {
+      for (level in taxon_levels) {
+        taxon_name <- find_exact_match(kolgr_taxa[[level]][i], y$`Cleaned Taxon name`)
+        if (!is.na(taxon_name)) {
+          matched_taxon[i] <- taxon_name
+          break
+        }
+      }
+    }
+  }
+  
+  return(matched_taxon)
+}
+
+KolgrTaxa$matched_taxon_name <- find_taxon_match(KolgrTaxa$Flokkun, KolgrTaxa, table_df)
 

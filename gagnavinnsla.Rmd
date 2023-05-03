@@ -341,12 +341,6 @@ colnames(tabbla_df) <- c("Major Group", "Family code", "Species code", "Taxon na
                          "Feeding guild")
 table_df <- subset(tabbla_df, !grepl("^Major", `Major Group`))
 
-find_closest_match <- function(x, y) {
-  string_distances <- stringdist::stringdistmatrix(tolower(x), tolower(y), method = "jw")
-  y[apply(string_distances, 1, which.min)]
-}
-
-data1_agg$matched_taxon_name <- find_closest_match(data1_agg$Flokkun, table_df$`Taxon name`)
 
 # nákvæm pörun:
 find_exact_match <- function(x, y) {
@@ -365,9 +359,17 @@ table_df$`Cleaned Taxon name` <- gsub("\\s*(sp\\.|spp\\.|indet\\.)", "", table_d
 
 data1_agg$exact_taxon_name <- find_exact_match(data1_agg$Flokkun, table_df$`Cleaned Taxon name`)
 unmatched_rows <- is.na(data1_agg$exact_taxon_name)
+
+ find_closest_match <- function(x, y) {
+   string_distances <- stringdist::stringdistmatrix(tolower(x), tolower(y), method = "jw")
+   y[apply(string_distances, 1, which.min)]
+ }
+  
 data1_agg$matched_taxon_name[unmatched_rows] <- find_closest_match(data1_agg$Flokkun[unmatched_rows], table_df$`Cleaned Taxon name`)
 data1_agg$final_taxon_name <- ifelse(is.na(data1_agg$exact_taxon_name), data1_agg$matched_taxon_name, data1_agg$exact_taxon_name)
 merged_data <- merge(data1_agg, table_df, by.x = "final_taxon_name", by.y = "Taxon name")
+
+# merged_data er 635 raðir á móti 816 röðum hjá data1_agg. Mikið sem dettur út.
 ```
 
 
