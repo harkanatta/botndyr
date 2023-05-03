@@ -1,22 +1,29 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>My Shiny App</title>
-    <script src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3.2.2/build/main.js"
-    async defer>
-    </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-      /* Add some custom CSS styles here if desired */
-      body {
-        font-family: Arial, sans-serif;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>My Shiny App</h1>
-    <div id="botndyr_app"></div>
-    <script src="botndyr_app/app.js"></script>
-  </body>
+<head>
+  <title>My Shiny App</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3.1.6/dist/crate.js" async></script>
+  <script>
+    new Crate({
+      server: 'https://discord.com/api/v8',
+      channel: '896144082100404491',
+      shard: 'https://e.widgetbot.io',
+      color: '#16a085',
+      username: 'Botndyr Support'
+    })
+  </script>
+</head>
+<body>
+  <h1>My Shiny App</h1>
+  <div id="Taxonomic-and-Feeding-Guild-Classification" class="shiny-app"></div>
+  <script src="https://cdn.jsdelivr.net/npm/shiny@1.7.1/shiny.min.js"></script>
+  <script src="app.js"></script>
+</body>
 </html>
+
+$(document).ready(function() {
+  var myShinyApp = new Shiny.App("#myShinyApp");
+});
