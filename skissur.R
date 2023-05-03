@@ -2412,6 +2412,7 @@ merged_data <- merge(KolgrTaxa, table_df, by.x = "matched_taxon_name", by.y = "T
 
 
 
+
 column_mapping <- data.frame(
   find_name = c("major_group", "food_source", "motility", "habit", "om_ca_he", "food_size_type", "feed_mode"),
   merged_data_col = c("Major.Group", "Food.Source", "Motility", "Habit", "Om.Ca.He", "Food.size.type", "FeedMode")
