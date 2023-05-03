@@ -5,10 +5,10 @@ account: valtyrio
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 9008438
-bundleId: 7163581
+bundleId: 7167933
 url: https://valtyrio.shinyapps.io/Feeding_Guilds/
-when: 1683033232.24794
-lastSyncTime: 1683033232.24796
+when: 1683106185.67589
+lastSyncTime: 1683106185.67589
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: Family code1999_.png|Family code2013_.png|Family code2014_.png|Family code2015_.png|Family code2016_.png|Family code2017_.png|Feeding guild1999_.png|Feeding guild2013_.png|Feeding guild2014_.png|Feeding guild2015_.png|Feeding guild2016_.png|Feeding guild2017_.png|FeedMode1999_.png|FeedMode2013_.png|FeedMode2014_.png|FeedMode2015_.png|FeedMode2016_.png|FeedMode2017_.png|Food Source1999_.png|Food Source2013_.png|Food Source2014_.png|Food Source2015_.png|Food Source2016_.png|Food Source2017_.png|Habit1999_.png|Habit2013_.png|Habit2014_.png|Habit2015_.png|Habit2016_.png|Habit2017_.png|Major Group1999_.png|Major Group2013_.png|Major Group2014_.png|Major Group2015_.png|Major Group2016_.png|Major Group2017_.png|melted_data.csv|Motility1999_.png|Motility2013_.png|Motility2014_.png|Motility2015_.png|Motility2016_.png|Motility2017_.png|Species code1999_.png|Species code2013_.png|Species code2014_.png|Species code2015_.png|Species code2016_.png|Species code2017_.png|Food size|Om
+ignoredFiles: melted_data.csv|merged_data.csv|yfirfara.csv

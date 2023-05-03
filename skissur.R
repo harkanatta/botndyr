@@ -2326,7 +2326,7 @@ df <- data.frame(find_name = c("major_group", "food_source", "motility", "habit"
 
 
 
-find_taxon_match <- function(x, taxon_levels) {
+find_taxon_matchB <- function(x, taxon_levels) {
   matched_taxon <- rep(NA_character_, length(x))
   found_match <- rep(FALSE, length(x))
   
@@ -2349,6 +2349,11 @@ KolgrTaxa$exact_taxon_name <- find_taxon_match(KolgrTaxa$Flokkun, taxon_levels)
 unmatched_rows <- is.na(KolgrTaxa$exact_taxon_name)
 KolgrTaxa$final_taxon_name <- KolgrTaxa$exact_taxon_name
 merged_data <- merge(KolgrTaxa, table_df, by.x = "final_taxon_name", by.y = "Taxon name", all.x = TRUE)
+
+
+
+
+
 
 
 
@@ -2382,4 +2387,36 @@ find_taxon_match <- function(x, kolgr_taxa, y) {
 }
 
 KolgrTaxa$matched_taxon_name <- find_taxon_match(KolgrTaxa$Flokkun, KolgrTaxa, table_df)
+unmatched_rows <-  KolgrTaxa$matched_taxon_name == ""
+
+find_closest_match <- function(x, y) {
+  string_distances <- stringdist::stringdistmatrix(tolower(x), tolower(y), method = "jw")
+  y[apply(string_distances, 1, which.min)]
+}
+
+KolgrTaxa$matched_taxon_name[unmatched_rows] <- find_closest_match(KolgrTaxa$Flokkun[unmatched_rows], table_df$`Cleaned Taxon name`)
+merged_data <- merge(KolgrTaxa, table_df, by.x = "matched_taxon_name", by.y = "Taxon name")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+column_mapping <- data.frame(
+  find_name = c("major_group", "food_source", "motility", "habit", "om_ca_he", "food_size_type", "feed_mode"),
+  merged_data_col = c("Major.Group", "Food.Source", "Motility", "Habit", "Om.Ca.He", "Food.size.type", "FeedMode")
+)
+
+text_with_mapping <- merge(text, column_mapping, by = "find_name")
+choices = text_with_mapping$find_name
 

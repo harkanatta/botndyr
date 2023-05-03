@@ -374,6 +374,78 @@ merged_data <- merge(data1_agg, table_df, by.x = "final_taxon_name", by.y = "Tax
 
 
 
+```{r Feeding}
+KolgrTaxa <- read_csv("KolgrTaxa.csv", na = "empty") 
+   
+   remove_list <- paste(c(
+     "nýsestir",
+     "ungviði",
+     "ungv",
+     "ungv.",
+     "juv",
+     "harpacticoida"
+   ), collapse = '|') 
+# Define a function to find the taxon match based on the exact match and taxonomic hierarchy
+find_taxon_match <- function(x, kolgr_taxa, y) {
+  # Initialize a vector to store the matched taxon names
+  matched_taxon <- rep(NA_character_, length(x))
+
+  # Define the taxonomic hierarchy order
+  taxon_levels <- c("Genus", "Family", "Superfamily", "Order", "Superorder", "Subterclass", "Infraclass", "Subclass", "Class", "Phylum", "Kingdom")
+
+  # Iterate through each element in x (KolgrTaxa$Flokkun)
+  for (i in 1:length(x)) {
+    found_match <- FALSE
+    
+    # Try to find an exact match between the current element and the cleaned taxon names
+    taxon_name <- find_exact_match(x[i], y$`Cleaned Taxon name`)
+    if (!is.na(taxon_name)) {
+      matched_taxon[i] <- taxon_name
+      found_match <- TRUE
+    }
+    
+    # If no exact match was found, search for a match in the taxonomic hierarchy
+    if (!found_match) {
+      for (level in taxon_levels) {
+        taxon_name <- find_exact_match(kolgr_taxa[[level]][i], y$`Cleaned Taxon name`)
+        if (!is.na(taxon_name)) {
+          matched_taxon[i] <- taxon_name
+          break
+        }
+      }
+    }
+  }
+
+  # Return the vector of matched taxon names
+  return(matched_taxon)
+}
+
+# Find the taxon match for each element in KolgrTaxa$Flokkun
+KolgrTaxa$matched_taxon_name <- find_taxon_match(KolgrTaxa$Flokkun, KolgrTaxa, table_df)
+
+# Identify rows with unmatched taxon names (empty strings)
+unmatched_rows <-  KolgrTaxa$matched_taxon_name == ""
+
+# Define a function to find the closest string match between two sets of strings
+find_closest_match <- function(x, y) {
+  string_distances <- stringdist::stringdistmatrix(tolower(x), tolower(y), method = "jw")
+  y[apply(string_distances, 1, which.min)]
+}
+
+# For the unmatched rows, find the closest string match between Flokkun and Cleaned Taxon name
+KolgrTaxa$matched_taxon_name[unmatched_rows] <- find_closest_match(KolgrTaxa$Flokkun[unmatched_rows], table_df$`Cleaned Taxon name`)
+
+# Merge the data frames based on the matched taxon names
+merged_data <- merge(KolgrTaxa, table_df, by.x = "matched_taxon_name", by.y = "Cleaned Taxon name")
+
+
+write.csv(merged_data,"Feeding_Guilds/merged_data_allt.csv", row.names = F)
+```
+
+
+
+
+
 ```{r props}
 # Group data by year, major group, and station
 grouped_data <- ddply(merged_data, .(Artal, `Major Group`, stod), summarise, total_N = sum(N, na.rm = TRUE))
