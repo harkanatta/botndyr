@@ -436,7 +436,7 @@ find_closest_match <- function(x, y) {
 KolgrTaxa$matched_taxon_name[unmatched_rows] <- find_closest_match(KolgrTaxa$Flokkun[unmatched_rows], table_df$`Cleaned Taxon name`)
 
 # Merge the data frames based on the matched taxon names
-merged_data <- merge(KolgrTaxa, table_df, by.x = "matched_taxon_name", by.y = "Cleaned Taxon name")
+merged_data_kolgr <- merge(KolgrTaxa, table_df, by.x = "matched_taxon_name", by.y = "Cleaned Taxon name")
 
 
 write.csv(merged_data,"Feeding_Guilds/merged_data_allt.csv", row.names = F)
