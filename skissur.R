@@ -113,6 +113,33 @@ data <- data[!data$N %in% outliers,]
 # Create a new box plot without outliers
 boxplot(data$N)
 
+library(plyr)
+
+top_10_species_ddply <- ddply(jorundur, .(Flokkun), summarise, total_abundance = sum(N)) %>%
+  arrange(desc(total_abundance)) %>%
+  head(10)
+
+print(top_10_species_ddply)
+
+# Identify outliers
+bp <- boxplot.stats(jorundur$Nfm)
+outliers <- bp$out
+
+# Remove outliers
+data_no_outliers <- jorundur[!jorundur$Nfm %in% outliers,]
+
+# Add a new column for labels
+data_no_outliers$label <- data_no_outliers$Flokkun
+
+
+ggplot(data_no_outliers, aes(x = "", y = N)) +
+  geom_boxplot() +
+  geom_text(aes(label = label), hjust = 1.1, vjust = -0.5, size = 3) +
+  labs(x = "", y = "Abundance", title = "Boxplot of Species Abundance") +
+  theme_bw()
+
+
+
 
 data_mat <- data[, c("Flokkun", "Artal", "N")]
 data_mat_wide <-data.table::dcast(data_mat, Flokkun ~ Artal, value.var = "N")
@@ -2420,4 +2447,36 @@ column_mapping <- data.frame(
 
 text_with_mapping <- merge(text, column_mapping, by = "find_name")
 choices = text_with_mapping$find_name
+
+
+
+
+
+
+
+
+
+
+
+
+top_10_data <- reactive({
+  if (input$top_10) {
+    # Get the top 10 species overall by summing the n values for each species and ordering them in descending order
+    top_10_species <- names(sort(tapply(merged_data$n, merged_data$major_group, sum), decreasing = TRUE))[1:10]
+    # Subset the data to only include the top 10 species overall
+    merged_data_subset <- subset(merged_data, major_group %in% top_10_species)
+  } else {
+    merged_data_subset <- merged_data
+  }
+  merged_data_subset
+})
+
+output$selected_text <- renderUI({
+  selected_row <- column_mapping[column_mapping$merged_data_col == input$selected_col, "text"]
+  HTML(selected_row[1])
+})
+output$selected_text <- renderUI({
+  selected_row <- column_mapping[column_mapping$merged_data_col == input$selected_col, "text"]
+  HTML(selected_row[1])
+})
 

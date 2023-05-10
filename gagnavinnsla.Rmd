@@ -9,7 +9,7 @@ output: html_document
 
 knitr::opts_chunk$set(echo = TRUE)
 #Rpakkar <- c("tidyverse","benthos","worrms", "plyr", "data.table", "DT", "dplyr", "here", "BBI", "ggh4x", "gplots","PDE", "magick", "tesseract", "xlsx", "ggpubr", "factoextra")
-Rpakkar <- c("tidyverse", "diagram", "genogram", "xlsx", "vegan")
+Rpakkar <- c("tidyverse", "diagram", "genogram", "xlsx", "vegan", "plyr", "ggrepel")
 
 #install.packages('pacman')
 pacman::p_load(Rpakkar, character.only = TRUE)
@@ -185,7 +185,8 @@ kornast_organic_tap_dypi <- structure(list(stod = c("A7", "A7", "A7", "A7", "A7"
 ```{r MergeSep}
 
 # Aggregate data to sum 'N' values for duplicate rows
-data1_agg <- jorundur %>% group_by(Artal, stod, Flokkun) %>% summarise(N = sum(N))
+#data1_agg <- jorundur %>% group_by(Artal, stod, Flokkun) %>% summarise(N = sum(N))
+data1_agg <- ddply(jorundur,.(Artal, stod, Flokkun),summarise,N=sum(N))
 # Prepare data for ordination
 data1_wide <- data1_agg %>% spread(key = Flokkun, value = N, fill = 0)
 
@@ -230,8 +231,8 @@ p <- ggplot(combined_scores, aes(x = Scores.DCA1, y = Scores.DCA2, color = Type,
     theme_minimal() +
     scale_color_manual(values = c("Sample" = "black", "Species" = "red"))
 
- #plotly::ggplotly(p)
-
+  plotly::ggplotly(p)
+  #p
 ```
 
 Based on the DCA output provided, the gradient lengths for the first and second axes are 4.0100 and 2.5018, respectively.
@@ -270,6 +271,9 @@ print(anova_result)
 
 
 ```
+
+
+
 The output you provided shows the results of the permutation test for the Canonical Correspondence Analysis (CCA) under the reduced model. The test assesses the significance of the environmental variables in explaining the species composition in your data.
 
 The table displays the degrees of freedom (Df), Chi-square values, F statistics, and p-values (Pr(>F)) for each environmental variable, as well as the residual. The p-values indicate the significance of the relationship between each environmental variable and species composition, with smaller p-values suggesting a stronger relationship.
@@ -287,6 +291,26 @@ Síld 2013: Not significant (p = 0.136)
 Based on these results, it appears that the environmental variables 20um, 63um, and 125um have significant relationships with species composition in your data. The other environmental variables (250um, tap, sd, dypi, and Síld 2013) do not show significant relationships.
 
 You can use these results to help interpret the CCA ordination plot, identify the main environmental drivers of species composition, and guide further analysis or data collection.
+
+
+
+```{r CCA_B}
+
+# Plot species points
+plot(cca_result, display = "species", type = "n")
+# Add species labels
+text(cca_result, display = "species", cex = 0.8, col = "blue")
+
+# Add environmental variable vectors
+envfit_result <- envfit(cca_result, env_data)
+plot(envfit_result, p.max = 0.1, col = "black") # Adjust p.max value to control the number of plotted vectors
+
+
+```
+
+fig. cap. Figure X: Canonical Correspondence Analysis (CCA) biplot displaying the relationships between species (blue text) and environmental variables (black arrows) in Kolgrafafjörður. Species points represent their position in the ordination space based on their abundance patterns across sampling stations, while the lengths and directions of the environmental variable vectors indicate the strength and direction of their relationships with the species composition. A shorter vector implies a weaker relationship, whereas a longer vector indicates a stronger association with the species distribution. The angles between the vectors represent the correlations between environmental variables, with acute angles indicating positive correlations and obtuse angles indicating negative correlations. Only environmental variables with p-values below 0.1 are displayed in the plot to focus on the most influential factors affecting the species composition.
+
+
 
 #NMDS
 Do Non-metric Multidimensional Scaling (NMDS): Visualize community composition in a reduced-dimensionality space and overlay environmental variables to explore potential drivers of community structure.
@@ -320,6 +344,8 @@ plot(envfit_result, p.max = 0.05) # Only show significant variables at the 0.05 
 #These steps will help you perform NMDS and visualize the community composition in a two-dimensional space. Additionally, the significant environmental variables will be overlaid on the NMDS plot to explore their potential role in driving community structure. The resulting NMDS plot will provide a visual representation of the relationships between species, samples, and environmental variables in your data.
 
 ```
+Figure X: Non-metric Multidimensional Scaling (NMDS) ordination plot illustrating the community composition of species in Kolgrafafjörður based on the Bray-Curtis dissimilarity matrix. Sampling stations are represented by black text, with their positions in the ordination space reflecting their relative similarity in species composition. The environmental variables significantly associated (p < 0.05) with the community structure are overlaid on the plot as black arrows, with the length and direction of the arrows indicating the strength and direction of their influence on the species composition. Acute angles between the environmental variable vectors represent positive correlations, while obtuse angles indicate negative correlations. The NMDS plot provides a visual representation of the relationships between species, samples, and environmental variables, aiding in the identification of potential drivers of community structure in the study area.
+
 In an NMDS plot, the axes represent the reduced-dimensionality space that best preserves the original dissimilarities among samples in the high-dimensional species space. The axes themselves do not have a direct ecological interpretation, as they are derived from the ranked dissimilarities between samples. Instead, they serve as a means to visualize complex, multidimensional relationships among samples in a more interpretable two-dimensional space.
 
 The NMDS plot helps to reveal patterns in community composition by positioning samples close to each other if they have similar species compositions and further apart if their compositions are dissimilar. In this way, the NMDS plot allows you to visually assess the relationships among samples and identify potential groupings or gradients in the data.
@@ -327,7 +353,7 @@ The NMDS plot helps to reveal patterns in community composition by positioning s
 Overlaying environmental variables on the NMDS plot can help you explore their potential role in driving community structure. Arrows representing environmental variables are fitted to the ordination space, and the direction and length of these arrows provide information about the strength and direction of the relationships between these variables and the ordination axes. The angle between two arrows indicates the correlation between the corresponding environmental variables: a small angle represents a positive correlation, while an angle close to 180 degrees represents a negative correlation. If an environmental variable is significantly related to the community composition, its arrow will point in the direction of the gradient along which the variable changes most. By inspecting the NMDS plot with overlaid environmental variables, you can identify which factors might be important in shaping the observed community patterns.
 
 
-
+### Feeding Guilds (*Sjá Shiny app*)
 ```{r feeding}
 data1_agg <- ddply(jorundur,.(Artal, stod, Flokkun), summarise, N = sum(N))
 
@@ -372,9 +398,8 @@ merged_data <- merge(data1_agg, table_df, by.x = "final_taxon_name", by.y = "Tax
 # merged_data er 635 raðir á móti 816 röðum hjá data1_agg. Mikið sem dettur út.
 ```
 
-
-
 ```{r Feeding}
+
 KolgrTaxa <- read_csv("KolgrTaxa.csv", na = "empty") 
    
    remove_list <- paste(c(
@@ -385,6 +410,88 @@ KolgrTaxa <- read_csv("KolgrTaxa.csv", na = "empty")
      "juv",
      "harpacticoida"
    ), collapse = '|') 
+   
+   remove_ind <- lapply(strsplit(remove_list , "\\|")[[1]] , \(x) grep(x , KolgrTaxa$gamalt , fixed = T)) |> 
+     unlist() |> 
+     unique()
+   
+   ekkiungvidi <- KolgrTaxa[-remove_ind,] 
+   
+   # df <- ekkiungvidi %>% 
+   #   mutate(Artal = factor(Artal)) %>% 
+   #   filter(stod %in% c("C4", "A7", "B5", "B8", "E4", "E3")) %>% 
+   #   ddply(.(Artal, stod,Flokkun),summarise, N=sum(Nfm)) %>% 
+   #   arrange(N)
+   
+   lagfaerd_heiti <- ekkiungvidi %>% 
+     filter(!Flokkun %in% c("harpacticoida", "Campanulariidae")) %>% 
+     mutate(
+       Flokkun = case_when(
+         Flokkun == "Spionida" ~ "Spionidae",
+         Flokkun == "Terebellides stroemi" ~ "Terebellides stroemii",
+         Flokkun == "Ampharetinae" ~ "Ampharetidae",
+         Flokkun == "ostracoda" ~ "Ostracoda",
+         Flokkun == "Sabellidae" ~ "Sabellida",
+         Flokkun == "scalibregma inflatum" ~ "Scalibregma inflatum",
+         Flokkun == "sipunculida" ~ "Sipuncula",
+         Flokkun == "sipunculidae" ~ "Sipuncula",
+         Flokkun == "sipunculidea" ~ "Sipuncula",
+         Flokkun == "Nephtys" ~ "Nephthys",
+         Flokkun == "Nepthys" ~ "Nephthys",
+Artal == "1999" & Flokkun == "Ampharete acutifrons" ~ "Ampharetinae",
+Artal == "1999" & Flokkun == "Bivalvia" ~ "NA"        ,
+Artal == "2013" & Flokkun == "Harmothoe" ~ "Harmothoe extenuata"       ,
+Artal == "2013" & Flokkun == "Polynoidae" ~ "Harmothoe extenuata" ,
+Artal == "2014" & Flokkun == "Praxillella" ~ "Praxillella praetermissa",
+Artal == "2014" & Flokkun == "Syllidae" ~ "Syllis cornuta"             ,
+Artal == "2015" & Flokkun == "Syllidae" ~ "Syllis cornuta",
+Artal == "2015" & Flokkun == "Mya" ~ "Mya arenaria"        ,     
+Artal == "2015" & Flokkun == "Mytilidae" ~ "Mytilus edulis",
+Artal == "2015" & Flokkun == "Ampharetidae" ~ "NA"          ,
+Artal == "2016" & Flokkun == "Aricidea" ~ "Amphitrite cirrata"      ,
+Artal == "2016" & Flokkun == "Capitellidae" ~ "Capitella capitata"   ,  
+Artal == "2016" & Flokkun == "Cirratulidae" ~ "Cirratulus cirratus",
+Artal == "2016" & Flokkun == "Cossuridae" ~ "Cossura longocirrata",
+Artal == "2016" & Flokkun == "Nephtyidae" ~ "Nephthys"      ,
+Artal == "2016" & Flokkun == "Pectinariidae" ~ "Pectinaria koreni"     ,
+Artal == "2016" & Flokkun == "Phyllodocida" ~ "Phyllodoce maculata",
+Artal == "2016" & Flokkun == "Spio" ~ "Spio filicornis"            ,
+Artal == "2016" & Flokkun == "Spionidae" ~ "Spio filicornis",
+Artal == "2016" & Flokkun == "Syllidae" ~ "Syllis"           ,          
+Artal == "2016" & Flokkun == "Cardiidae" ~ "Cardium"          ,         
+Artal == "2016" & Flokkun == "Cardiidae" ~ "Cardium"           ,        
+Artal == "2017" & Flokkun == "Mya" ~ "Mya arenaria"  ,
+Artal == "2017" & Flokkun == "Maldanidae" ~ "Praxillella praetermissa",
+Artal == "1999" & Flokkun == "Ampharetinae" ~ "Ampharetidae",
+Artal == "2017" & Flokkun == "Ampharete" ~ "Ampharetidae"    ,
+Artal == "2017" & Flokkun == "Ampharete acutifrons" ~ "Ampharetidae",
+Artal == "2016" & Flokkun == "Lumbrineridae" ~ "Lumbrineris",
+Artal == "2015" & Flokkun == "Pholoe" ~ "Pholoe minuta"      ,          
+Artal == "2016" & Flokkun == "Pholoe" ~ "Pholoe minuta"       ,         
+Artal == "2017" & Flokkun == "Pholoe" ~ "Pholoe minuta"        ,    
+Artal == "1999" & Flokkun == "Musculus discors" ~ "Musculus",
+Artal == "2014" & Flokkun == "Mya" ~ "Mya arenaria"          ,   
+Artal == "2014" & Flokkun == "Mytilus edulis" ~ "Mytilidae",
+Artal == "2014" & Flokkun == "Nephtyidae" ~ "Nephthys"       ,
+Artal == "2014" & Flokkun == "Amphipoda" ~ "Protomedeia fasciata"    ,
+Artal == "2014" & Flokkun == "Tubificidae" ~ "Tubificoides kozloffi",
+Artal == "2014" & Flokkun == "Harmothoe" ~ "Harmothoe extenuata"     ,  
+Artal == "2015" & Flokkun == "Harmothoe" ~ "Harmothoe extenuata"      , 
+Artal == "2015" & Flokkun == "Amphipoda" ~ "Protomedeia fasciata",
+Artal == "2016" & Flokkun == "Balanus balanus" ~ "Balanus"       ,
+Artal == "2016" & Flokkun == "priapulidae" ~ "Priapulus caudatus" ,     
+Artal == "2016" & Flokkun == "Priapulidae" ~ "Priapulus caudatus"  ,    
+Artal == "2017" & Flokkun == "Harmothoe" ~ "Harmothoe extenuata"    ,   
+Artal == "1999" & Flokkun == "Leucon acutirostris" ~ "Cumacea"       ,  
+Artal == "1999" & Flokkun == "Eudorella emarginata" ~ "Cumacea",
+       TRUE ~ Flokkun)) %>% 
+     drop_na() 
+
+   bp <- boxplot.stats(lagfaerd_heiti$Nfm)
+outliers <- bp$out   
+lagfaerd_heiti <-  lagfaerd_heiti[lagfaerd_heiti$Nfm %in% outliers,]
+   
+   
 # Define a function to find the taxon match based on the exact match and taxonomic hierarchy
 find_taxon_match <- function(x, kolgr_taxa, y) {
   # Initialize a vector to store the matched taxon names
@@ -393,7 +500,7 @@ find_taxon_match <- function(x, kolgr_taxa, y) {
   # Define the taxonomic hierarchy order
   taxon_levels <- c("Genus", "Family", "Superfamily", "Order", "Superorder", "Subterclass", "Infraclass", "Subclass", "Class", "Phylum", "Kingdom")
 
-  # Iterate through each element in x (KolgrTaxa$Flokkun)
+  # Iterate through each element in x (lagfaerd_heiti$Flokkun)
   for (i in 1:length(x)) {
     found_match <- FALSE
     
@@ -420,11 +527,11 @@ find_taxon_match <- function(x, kolgr_taxa, y) {
   return(matched_taxon)
 }
 
-# Find the taxon match for each element in KolgrTaxa$Flokkun
-KolgrTaxa$matched_taxon_name <- find_taxon_match(KolgrTaxa$Flokkun, KolgrTaxa, table_df)
+# Find the taxon match for each element in lagfaerd_heiti$Flokkun
+lagfaerd_heiti$matched_taxon_name <- find_taxon_match(lagfaerd_heiti$Flokkun, lagfaerd_heiti, table_df)
 
 # Identify rows with unmatched taxon names (empty strings)
-unmatched_rows <-  KolgrTaxa$matched_taxon_name == ""
+unmatched_rows <-  lagfaerd_heiti$matched_taxon_name == ""
 
 # Define a function to find the closest string match between two sets of strings
 find_closest_match <- function(x, y) {
@@ -433,102 +540,125 @@ find_closest_match <- function(x, y) {
 }
 
 # For the unmatched rows, find the closest string match between Flokkun and Cleaned Taxon name
-KolgrTaxa$matched_taxon_name[unmatched_rows] <- find_closest_match(KolgrTaxa$Flokkun[unmatched_rows], table_df$`Cleaned Taxon name`)
+lagfaerd_heiti$matched_taxon_name[unmatched_rows] <- find_closest_match(lagfaerd_heiti$Flokkun[unmatched_rows], table_df$`Cleaned Taxon name`)
 
 # Merge the data frames based on the matched taxon names
-merged_data_kolgr <- merge(KolgrTaxa, table_df, by.x = "matched_taxon_name", by.y = "Cleaned Taxon name")
+merged_data_kolgr <- merge(lagfaerd_heiti, table_df, by.x = "matched_taxon_name", by.y = "Cleaned Taxon name")
 
 
-write.csv(merged_data,"Feeding_Guilds/merged_data_allt.csv", row.names = F)
+#write.csv(merged_data_kolgr,"docs/merged_data_alltB.csv", row.names = F)
+```
+
+```{r Feeding_Guilds}
+merged_data_allt <- read.csv("docs/merged_data_allt.csv")
+merged_data <- subset(merged_data_allt, stod %in% c("C4", "A7", "B5", "B8", "E4", "E3"))
+colnames(merged_data) <- janitor::make_clean_names(colnames(merged_data))
+
+
+data1_agg <- ddply(merged_data,.(artal, stod, feeding_guild),summarise,N=sum(nfm))
+# Prepare data for ordination
+data1_wide <- data1_agg %>% spread(key = feeding_guild, value = N, fill = 0)
+
+#Fix column name for Artal to artal
+colnames(kornast_organic_tap_dypi)[2]<-"artal"
+merged_data <- merge(data1_wide, kornast_organic_tap_dypi, by = c("artal", "stod")) # Hér dettur 1999 út
+rownames(merged_data) <- paste(merged_data$artal, merged_data$stod, sep = "_")
+merged_data <- merged_data[, -c(1,2)] # Remove the 'Year' and 'Station' columns
+
+# Separate environmental and species data
+env_data <- merged_data[, c("20um","63um","125um","250um","1000um","tap","sd","dypi", "Síld 2013")]
+guild_data <- merged_data[, !(names(merged_data) %in% c("20um","63um","125um","250um","1000um","tap","sd","dypi", "Síld 2013"))]
+
+# Perform RDA or CCA
+rda_result <- rda(guild_data ~ `20um` + `63um` + `125um` + `250um` + `1000um` + tap + sd + dypi + `Síld 2013`, data = env_data)
+cca_result <- cca(guild_data ~ `20um` + `63um` + `125um` + `250um` + `1000um` + tap + sd + dypi + `Síld 2013`, data = env_data)
+
 ```
 
 
 
+```{r env-group}
+
+library(vegan)
+
+# Define groups of environmental variables
+group1 <- env_data[, c("20um", "63um", "125um", "250um", "1000um")] # Particle sizes
+group2 <- env_data[, c("tap", "sd", "dypi", "Síld 2013")] # Other environmental factors
+
+# Perform variation partitioning
+vp_result <- varpart(guild_data, group1, group2)
+
+# Print the results
+print(vp_result)
 
 
-```{r props}
-# Group data by year, major group, and station
-grouped_data <- ddply(merged_data, .(Artal, `Major Group`, stod), summarise, total_N = sum(N, na.rm = TRUE))
-
-# Calculate station totals for each year
-station_totals <- ddply(merged_data, .(Artal, stod), summarise, station_total_N = sum(N))
-
-# Add station totals to the grouped data
-grouped_data_with_totals <- join(grouped_data, station_totals, by = c("Artal", "stod"))
-
-# Calculate proportions
-grouped_data_with_totals$proportion <- grouped_data_with_totals$total_N / grouped_data_with_totals$station_total_N
-
-# Spread the data into a wide format
-wide_data <- reshape2::dcast(grouped_data_with_totals, Artal + stod ~ `Major Group`, value.var = "proportion", fill = 0)
-
-# Print the wide data
-#print(wide_data)
+```
 
 
-for (i in c("1999",2013:2017)) {
-  wide_data_B <- wide_data[wide_data$Artal ==i,]
-  wide_dataB <- t(wide_data_B[,-c(1:2)])
-  colnames(wide_dataB) <- wide_data_B$stod
-  
-  barplot(wide_dataB,main = unique(wide_data_B$Artal))
-  require(graphics)
-  #legend("topright",horiz = F, rownames(wide_dataB),fill = gray.colors(12))
+The variation partitioning results show the unique and shared contributions of the two sets of environmental variables (group1: particle sizes, and group2: other environmental factors) to the feeding guild composition. The adjusted R-squared values indicate the proportion of variance in guild composition that can be explained by each set of variables or their shared effect.
+
+Here's a summary of the results:
+
+[a]: The unique contribution of particle sizes (group1) is 0.08331, which means that ~8.33% of the variance in guild composition can be explained by particle sizes alone.
+[b]: The unique contribution of other environmental factors (group2) is 0.29846, which means that ~29.85% of the variance in guild composition can be explained by these factors alone.
+[c]: The shared contribution of both sets of variables is 0.13334, which means that ~13.33% of the variance in guild composition can be explained by the combined effect of both sets of variables.
+[d]: The unexplained variance (residuals) is 0.48490, which means that ~48.49% of the variance in guild composition cannot be explained by the environmental variables in your dataset.
+Please note that collinearity was detected in group1 and in the combined set of variables (group1 + group2). This may affect the interpretation of the results, so it is essential to verify the assumptions of the RDA and check for multicollinearity among the variables. You can use the vif.cca() function from the 'vegan' package to compute variance inflation factors (VIF) and identify collinear variables. If necessary, consider removing or combining collinear variables to improve your analysis.
+
+To test the significance of the individual fractions (a, b, and a+b+c), you can use the rda() function from the 'vegan' package, followed by the anova() function to perform a permutation test. Here's an example:
+
+
+```{r capscale}
+
+
+
+
+# Test the significance of the unique contribution of particle sizes (group1)
+test_a <- rda(guild_data ~ `20um` + `63um` + `125um` + `250um` + `1000um`, data = env_data)
+anova(test_a, by = "margin", permutations = 999)
+
+# Test the significance of the unique contribution of other environmental factors (group2)
+test_b <- rda(guild_data ~ tap + sd + dypi + `Síld 2013`, data = env_data)
+anova(test_b, by = "margin", permutations = 999)
+
+# Test the significance of the combined effect of both sets of variables (group1 + group2)
+test_ab <- rda(guild_data ~ `20um` + `63um` + `125um` + `250um` + `1000um` + tap + sd + dypi + `Síld 2013`, data = env_data)
+anova(test_ab, by = "margin", permutations = 999)
+
+
+
+# Load the vegan package
+library(vegan)
+
+# Calculate variance inflation factors for each variable
+vif_values <- caTools::vif(lm(`1000um` ~ `20um` + `63um` + `125um` + `250um`, data = particle_sizes))
+print(vif_values)
+
+# Check if any VIF values are above a threshold of 10
+if (any(vif_values > 10)) {
+  # Identify the index of the variable with the highest VIF
+  index_to_remove <- which.max(vif_values)
+  # Remove the variable with the highest VIF value and recalculate VIF values
+  particle_sizes_vif_filtered <- particle_sizes[, -index_to_remove]
+} else {
+  particle_sizes_vif_filtered <- particle_sizes
 }
 
-```
+# Rerun the analysis with the filtered dataset
+test_a_filtered <- rda(guild_data ~ `20um` + `63um` + `125um` + `250um` + `1000um`, data = env_data)
+anova(test_a_filtered, by = "margin", permutations = 999)
 
-```{r propsForReal}
 
-library(ggplot2)
-library(reshape2)
-library(viridis)
+# Prepare the combined particle sizes and other environmental data
+combined_data <- cbind(particle_sizes, env_data[, c("tap", "sd", "dypi", "Síld 2013")])
 
-# Define selected columns for plotting
-selected_cols <- c("Major Group", "Family code", "Species code", 
-                   "Food Source", "Motility", "Habit", 
-                   "Om/Ca/He", "Food size/type", "FeedMode", 
-                   "Feeding guild")
+# Perform partial RDA using capscale
+prda_result <- capscale(guild_data ~ . - Condition(`20um` + `63um` + `125um` + `250um` + `1000um`), data = combined_data)
 
-# Loop through selected columns
-for (col in selected_cols) {
-    LabX<-col
-    # Create a data frame for the current column
-    data_col <- merged_data[, c("Artal", "stod", col, "N")]
-    
-    # Remove rows with missing values
-    data_col <- na.omit(data_col)
-    colnames(data_col)[3] <- "col"
-    # Aggregate N values by Artal, stod, and the current column
-    agg_data <- aggregate(N ~ Artal + stod + col, data_col, sum)
-    
-    # Compute proportions for each station
-    prop_data <- ddply(agg_data, .(Artal, stod), transform, prop_N = N / sum(N))
-    
-    # Reshape data to long format
-    melted_data <- melt(prop_data, id.vars = c("Artal", "stod", "col"))
-    
-    # Create stacked bar plot for each year
-    for (year in unique(merged_data$Artal)) {
-        
-        # Filter data for the current year
-        plot_data <- subset(melted_data, Artal == year)
-        plot_data <- plot_data[plot_data$variable!="N",]
-        
-        # Create stacked bar plot
-        print(ggplot(plot_data, aes(x = factor(stod), y = value, fill = col)) +
-                  geom_bar(stat = "identity", position = "stack") +
-                  scale_fill_viridis(discrete = TRUE) +
-                  xlab("Stations") +
-                  ylab("Proportion") +
-                  ggtitle(paste("Year ", year, col, sep = "-")) +
-                  theme_bw())
-        # Save the plot with the title as the filename
-    plot_title <- paste(LabX, year, "_", ".png", sep = "")
-    ggsave(filename = plot_title, plot = p, width = 10, height = 7, dpi = 300)
-    }
-}
-
+# Run permutation tests for the partial RDA
+anova(prda_result, by = "margin", permutations = 999)
 
 ```
+
+
 
