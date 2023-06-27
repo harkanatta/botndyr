@@ -1,0 +1,225 @@
+---
+pagetitle: "From Disaster to Recovery:"
+subtitle: "A Study of Benthic Community Response to Anoxia"
+abstract: |
+ Síldardauðinn maður. 
+author: "Valtýr Sigurðsson"
+date: "4th July 2023"
+host: "Stellenbosch conference"
+institute: "BioPol"
+strip-comments: true
+format: 
+  revealjs:
+    logo: images/logoNNV.svg
+    slide-number: true
+    multiplex: true
+    theme: assets/monash.scss
+    show-slide-number: all
+    controls: true
+    width: 1280
+    height: 720
+    incremental: true
+    auto-stretch: false
+    css: [assets/custom.css, assets/pacman.css, assets/tachyons-addon.css]
+    include-after: |
+      <link rel="stylesheet" href="assets/syntax-highlight.css">
+      <link rel="stylesheet" href="assets/fontawesome-free-6.1.1-web/css/all.min.css">
+      <script src="assets/fontawesome-free-6.1.1-web/js/all.min.js"></script>
+callout-icon: false
+output-file: index.html
+execute:
+  echo: true
+---
+
+##  {#title-slide background="images/sh.png"}
+
+```{r setup, include = FALSE}
+library(tidyverse)
+
+rotating_text <- function(x, align = "center") {
+  glue::glue('
+<div style="overflow: hidden; height: 1.2em;">
+<ul class="content__container__list {align}" style="text-align: {align}">
+<li class="content__item">{x[1]}</li>
+<li class="content__item">{x[2]}</li>
+<li class="content__item">{x[3]}</li>
+<li class="content__item">{x[4]}</li>
+</ul>
+</div>')
+}
+
+fa_list <- function(x, incremental = FALSE) {
+  icons <- names(x)
+  fragment <- ifelse(incremental, "fragment", "")
+  items <- glue::glue('<li class="{fragment}"><span class="fa-li"><i class="{icons}"></i></span> {x}</li>')
+  paste('<ul class="fa-ul">', 
+        paste(items, collapse = "\n"),
+        "</ul>", sep = "\n")
+}
+
+```
+
+::: title-box
+<h2>`r rmarkdown::metadata$pagetitle`</h2>
+
+<h3>`r rmarkdown::metadata$subtitle`</h3>
+
+👨‍💻🏻‍💻 [`r rmarkdown::metadata$author` \@ `r rmarkdown::metadata$institute`]{.author}
+
+`r rotating_text(c('<i class="fa-solid fa-envelope"></i> valtyr@nnv.is','<i class="fa-brands fa-github"></i> github.com/harkanatta', '<i class="fa-solid fa-globe"></i> BioPol.is', '<i class="fa-solid fa-globe"></i> NNv.is'))`
+:::
+
+<br><br>
+
+::: {.absolute .bottom-0 .monash-white .w-100}
+[`r rmarkdown::metadata$date`]{.monash-white .fat-diet .fl .strokeme} [`r rmarkdown::metadata$host`]{.fr .monash-white .sugar-diet .strokeme}
+:::
+
+---
+
+
+## Herring die-off{.fl background-image="images/robert2013.jpg"}
+
+Kolgrafafjörður `(KF)` in winter 2012/13
+
+:::: {.columns}
+
+::: {.column .box width="50%"}
+
+- In the winter of 2012, a significant **hypoxic** event occurred, leading to the death of **55,000 tonnes** of **herring**.
+- The dead herring sank to the bottom of the fjord, creating a **layer** of **organic** material.
+-   This layer of decomposing herring consumed the remaining oxygen, creating **anoxic** conditions at the bottom of the fjord.
+-   These dramatic changes to the ecosystem sparked our interest and led us to investigate the impact on the benthic community.
+
+:::
+
+
+
+::::
+
+## 
+
+:::: {.columns}
+
+
+
+::: {.column width="50%"}
+
+<center>
+<img src="images/sildhne.jpg" width="90%">
+</center>
+
+<center>
+<img src="images/eyjolfurmatthiasson.jpg" width="90%">
+</center>
+
+:::
+
+
+::: {.column width="50%"}
+
+<center>
+<img src="images/robertsild.jpg" width="90%">
+</center>
+
+<center>
+<img src="images/robertsulur.jpg" width="90%">
+</center>
+
+:::
+
+::::
+
+## Understanding Hypoxia
+
+
+-   Hypoxia refers to a state in which oxygen levels in a particular environment are significantly reduced.
+-   Hypoxic conditions can be temporary or permanent, depending on the nature of the water body and the extent of the nutrient input.
+-   In the specific case of the Kolgrafafjörður fjord, the presence of 200,000 tonnes of herring in a small, secluded fjord led to a rapid depletion of oxygen, causing a hypoxic event. When these herring died and sank to the bottom, their decomposition further consumed the remaining oxygen, leading to anoxic conditions on the seafloor.
+
+
+Image: Consider including a diagram illustrating the process of eutrophication leading to hypoxia, or an image showing the impact of hypoxia on aquatic life.
+
+
+## Rassi
+
+::: {layout-nrow=1}
+
+![Up to the knees](images/sildhne.jpg)
+
+![Hanno](images/robertsild.jpg)
+:::
+
+
+## Rass
+
+::: {layout-nrow=1}
+
+![Abdul Abbas](images/eyjolfurmatthiasson.jpg)
+
+![Lin Wang](images/robertsulur.jpg)
+:::
+
+
+## The expedition
+
+::: columns
+::: {.column width="40%"}
+contents... 
+![Ungur nemur gamall temur](images/robertSyni2013B.jpg){fig-alt="Tveir hressir með slor"}
+:::
+
+::: {.column width="50%"}
+
+An expedition set out investigate
+
+:::
+:::
+
+
+
+## Bullets
+
+When you click the **Render** button a document will be generated that includes:
+
+-   Content authored with markdown
+-   Output from executable code
+
+## Code
+
+When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+
+
+::: {.flex style="text-align:center;margin-bottom:10px;"}
+::: w-50
+::: boxit
+
+<center>
+<img src="images/robert2012.jpg" width="100%">
+</center>
+
+- In the winter of 2012, a significant hypoxic event occurred, leading to the death of 55,000 tonnes of herring.
+- The dead herring sank to the bottom of the fjord, creating a layer of organic material.
+
+:::
+:::
+
+::: w-50
+::: boxit
+
+<center>
+<img src="images/robert2013.jpg" width="100%">
+</center>
+
+-   This layer of decomposing herring consumed the remaining oxygen, creating anoxic conditions at the bottom of the fjord.
+-   These dramatic changes to the ecosystem sparked our interest and led us to investigate the impact on the benthic community.
+
+:::
+:::
+
+:::
