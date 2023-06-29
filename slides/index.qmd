@@ -47,6 +47,19 @@ rotating_text <- function(x, align = "center") {
 </div>')
 }
 
+rotating_textB <- function(x, align = "center") {
+  glue::glue('
+<div style="overflow: hidden; height: 1.2em;">
+<ul class="content__container__list {align}" style="text-align: {align}">
+<li class="content__container__list__item">{x[1]}</li>
+<li class="content__container__list__item">{x[2]}</li>
+<li class="content__container__list__item">{x[3]}</li>
+<li class="content__container__list__item">{x[4]}</li>
+</ul>
+</div>')
+}
+
+
 fa_list <- function(x, incremental = FALSE) {
   icons <- names(x)
   fragment <- ifelse(incremental, "fragment", "")
@@ -67,20 +80,71 @@ fa_list <- function(x, incremental = FALSE) {
 
 <br>
 
-`r rotating_text(c('<i class="fa-solid fa-envelope"></i> valtyr@BioPol.is','![](images/Biopol_logo_small-transparent.png)', '<i class="fa-solid fa-envelope"></i> valtyr@nnv.is','<i class="fa-solid fa-globe"></i> NNv.is'))`
+`r rotating_text(c('<i class="fa-solid fa-envelope"></i> valtyr@BioPol.is','![](images/Biopol_logo_small-transparent.png)', 'Northwest Natural Research center','<i class="fa-solid fa-globe"></i> NNv.is'))`
 :::
 
 
 ------------------------------------------------------------------------
 
 ##  {background-image="images/2.png"}
-##  {background-image="images/3.png"}
-##  {background-image="images/4.png"}
-##  {background-image="images/5.png"}
-##  {background-image="images/6.png"}
+Kolgrafafjörður
+
+::: {.notes}
+This is the peaceful fjord Kolgrafafjörður in Snæfellsnes peninsula. I will just call it fjord for simplification
+:::
+
+
+
+## [Herring mass mortality]{.strokeme} {background-image="images/4.png"}
+
+### [Approximately 50,000 tonnes of herring succumbed to oxygen depletion in winter 2012/13. These events led to an accumulation of dead herring at the bottom of the fjord, subsequently creating anoxic conditions.]{.strokeme}
+
+## [Herring mass mortality]{.strokeme} {background-image="images/robert2013B.jpg"}
+### [Following this, we noticed a wash-up of dead benthic organisms, such as crabs, starfish and bivalves, on the shores.]{.strokeme} {background-image="images/4.png"}
+
+##  {background-image="images/6b.png"}
+...we went sampling
+
+::: {.notes}
+This is the first sampling trip in june, 4 months after.
+:::
+
 ##  {background-image="images/7.png"}
-##  {background-image="images/8.png"}
+
+::: {.notes}
+I spent the winter sorting species and the project sparked further interest.
+:::
+
+##  {auto-animate=true}
+
+
+*  At first our aim was to investigate the immediate impacts of a significant ecological event.
+* But drawing from the work of others (<span style="font-size:20pt;">[Eivind Oug, Tor Eiliv Lein, Regina Küfner & Inger-Britt Falk-Petersen]{.monash-blue2} (1991)</span>) we aimed to examine:
+
+
+1. &nbsp; species composition and succession of macrofauna,
+2. &nbsp; the eventual return to equilibrium in the fjord, and 
+3. &nbsp; compare our result to the data from 1999 
+
+. . .
+
+
+::: aside
+- Environmental effects of a herring mass mortality in northern Norway. Impact
+on and recovery of rockyshore and soft-bottom biotas (1999)
+::: 
+
+## {background-image="images/DominantGroups.png"}
+
+##  {background-image="images/3.png"}
+
+
+
 ##  {background-image="images/9.png"}
+
+
+##  {background-image="images/8.png"}
+
 ##  {background-image="images/10.png"}
 ##  {background-image="images/11.png"}
 ##  {background-iframe="https://valtyrio.shinyapps.io/docs/" background-interactive="true"}
