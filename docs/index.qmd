@@ -10,7 +10,7 @@ institute: "BioPol"
 strip-comments: true
 format: 
   revealjs:
-    slide-number: true
+    slide-number: false
     multiplex: true
     theme: assets/monash.scss
     show-slide-number: all
@@ -19,7 +19,7 @@ format:
     height: 720
     incremental: true
     auto-stretch: false
-    css: [assets/custom.css, assets/pacman.css, assets/tachyons-addon.css]
+    css: [assets/custom.css, assets/tachyons-addon.css]
     include-after: |
       <link rel="stylesheet" href="assets/syntax-highlight.css">
       <link rel="stylesheet" href="assets/fontawesome-free-6.1.1-web/css/all.min.css">
@@ -69,6 +69,9 @@ fa_list <- function(x, incremental = FALSE) {
         "</ul>", sep = "\n")
 }
 
+
+
+
 ```
 
 ::: title-box
@@ -86,73 +89,289 @@ fa_list <- function(x, incremental = FALSE) {
 
 ------------------------------------------------------------------------
 
+## {background-image="images/4.png"}
+<br>
+<br>
+[<span style="font-size:30pt;">[Approximately 50,000 tonnes of herring succumbed to oxygen depletion in winter 2012/13.]{.strokeme}</span>]{.story}
 
-
-##  Kolgrafafjörður {background-image="images/2.png"}
-
-
-
+## {background-image="images/sildhne.png"}
+<br>
+<br>
+[<span style="font-size:30pt;">[Approximately 50,000 tonnes of herring succumbed to oxygen depletion in winter 2012/13]{.strokeme}</span>]{.story}
+<br>
+<br>
+[<span style="font-size:30pt;">[These events led to an accumulation of dead herring at the bottom of the fjord, subsequently creating anoxic conditions.]{.strokeme}</span>]{.story}
 
 ::: {.notes}
-This is the peaceful fjord Kolgrafafjörður in Snæfellsnes peninsula. I will just call it fjord for simplification
+The dead herring rots fast and the benthic fauna cannot make any use of it, it's just food for bacteria.
+:::
+
+## {background-image="images/robert2013B.png"}
+<br>
+<br>
+[<span style="font-size:30pt;">[Approximately 50,000 tonnes of herring succumbed to oxygen depletion in winter 2012/13.]{.strokeme}</span>]{.story}
+<br>
+<br>
+[<span style="font-size:30pt;">[These events led to an accumulation of dead herring at the bottom of the fjord, subsequently creating anoxic conditions.]{.strokeme}</span>]{.story}
+<br>
+<br>
+[<span style="font-size:30pt;">[In the aftermath, there was a wash-up of dead benthic organisms, such as crabs, starfish and bivalves, on the shores.]{.strokeme}</span>]{.story}
+
+
+
+##  [Kolgrafafjörður]{.strokeme} {background-image="images/2.png" .slide-number:first-child}
+
+::: {.notes}
+This is the peaceful fjord Kolgrafafjörður in Summertime. You can see the road, a landfill and a bridge ove a narrow gap. This is where the herring went inside the secluded area to escape predators and fishing vessels. The bridge was built in 2004 so in 1999 there was an environmental reseach made in beforehand.
 :::
 
 ##  {background-image="images/3.png"}
 
-## {background-image="images/4.png"}
-<span style="font-size:30pt;">[Approximately 50,000 tonnes of herring succumbed to oxygen depletion in winter 2012/13.]{.strokeme}</span>
+::: {.notes}
 
-## {background-image="images/sildhne.png"}
-<span style="font-size:30pt;">[These events led to an accumulation of dead herring at the bottom of the fjord, subsequently creating anoxic conditions.]{.strokeme}</span>
-
-## {background-image="images/robert2013B.png"}
-<span style="font-size:30pt;">[Following this, we noticed a wash-up of dead benthic organisms, such as crabs, starfish and bivalves, on the shores.]{.strokeme}</span>
+the red area is where the herring covered the bottom, it was documented by the marine institute
+yellow dots are the sampling stations,
+the depth is from 12 to 40 meters.
+:::
 
 ##  {background-image="images/6b.png"}
 ...we went sampling
 
+![](images/VogJOR.jpg){.fragment .r-stretch}
+
+
 ::: {.notes}
-This is the first sampling trip in june, 4 months after.Stations were from a former reserch in 1999
+This is the first sampling trip in june, 4 months after the catastrophe.
+I was a masters student at the time doing another project on lyssianasid amphipods. So when this came along I was already in the area and excited to take in this project.
+Here Professor Jörundur is saying "look kid, this is all yours"
 :::
+
+
 
 ##  {background-image="images/7.png"}
 
 ::: {.notes}
-I spent the winter sorting species and the project sparked further interest.
+Here are the main results, this is from my masters project. All C. capitata. 
 :::
 
-##  
+##  The Impact of the Herring Crisis: 
 
-*  At first our aim was to investigate the immediate impacts of a catastrophe.
-* But as the project sparked interes we sought to examine:
+Fjord Closure Debates and Research Opportunities
 
+::: {.notes}
+the project sparked further interest,
+People were were furious over lost revenue, they wanted to close the fjord so the herring might never escape there again.
+Money was allocated to clean-up and also research so the project continued.
+:::
 
-1. &nbsp; species composition and succession of macrofauna,
-2. &nbsp; the eventual return to equilibrium in the fjord, and 
-3. &nbsp; compare our result to the data from 1999 
+::: {.r-stack}
+![](images/mynd-vilhelm.jpg){.fragment .r-stretch}
 
-. . .
+![](images/mynd-stjornarradid.jpg){.fragment .r-stretch}
 
-
-::: aside
-drawing from the work of others (<span style="font-size:20pt;">[Eivind Oug, Tor Eiliv Lein, Regina Küfner & Inger-Britt Falk-Petersen]{.monash-blue2} (1991)</span>)
-- Environmental effects of a herring mass mortality in northern Norway. Impact
-on and recovery of rockyshore and soft-bottom biotas (1999)
-::: 
-
+![](images/mynd-vilhelm-b.jpg){.fragment .r-stretch}
+:::
 
 
+##  Main goals reevaluated
 
-## {background-image="images/DominantGroups.png"}
+::: {.notes}
+At first our aim was to investigate the immediate impacts of a catastrophe in 2013.
+But with continuing research we could ask bigger questions.
+There had been a mass mortality of herring in Norway in the nineties the species composition and community succession was documented by Eivind Oug and colleagues.
+Guðmundur Víðir was Icelands best guy in polychaetes, he guided me in the masters project
+:::
+
+<br>
+<div class="control-diet" data-id="trt1">Examine **species composition** and **succession** of macrofauna from 2013 to 2017</div>
+<div class="sugar-diet" data-id="trt2"> Document the **eventual return to equilibrium** in the fjord</div>
 
 
-##  {background-image="images/8.png"}
 
+::: {.fragment}
+- Drawing from the work of others:
+:::
 
-##  {background-image="images/9.png"}
+::: {.fragment}
+<span style="font-size:20pt;">[(Eivind Oug, Tor Eiliv Lein, Regina Küfner & Inger-Britt Falk-Petersen]{.monash-blue2} (1991). Environmental effects of a herring mass mortality in northern Norway. Impact on and recovery of rockyshore and soft-bottom biotas)</span>
+:::
 
-##  {background-image="images/11.png"}
-##  {background-iframe="https://valtyrio.shinyapps.io/docs/" background-interactive="true"}
+::: {.fragment}
+- ...and Guðmundur Víðir, took over the species sorting.
+:::
+
 
 ##  {background-image="images/13.png"}
+
+
+
+##
+![](images/alltnema2016.png)
+
+::: {.notes}
+GV left one year because it was critical for the project to see the final sampling year.
+So I was asked to do the 2016 sorting....
+:::
+
+##
+![](images/alltlika2016.png)
+
+::: {.notes}
+I was lucky that my boss was on a leave for an indefinate amount of time when I took on this project. Because I didn't realize how much time Guðmundur Víðir had saved me. I could bring all the difficult worms to him and he would either show me what they were and how to identify them or he would say don't bother with this one one, it's a syllid ;)
+Anyway the sorting took me more than two years on and off.
+:::
+
+##
+![](images/sp-ind-organic.png)
+
+::: {.notes}
+The red line with error bars is for % of organic material in the sediment
+The dotted line is for the number of species
+The blue line is for the number of individuals.
+This follows the expected plot completely 
+:::
+
+## {background-image="images/DominantPoly.png"}
+
+::: {.notes}
+We continue being as predictable as a movie plot
+:::
+
+## {background-image="images/stationdendo.png"}
+
+::: {.notes}
+We had these regular stations that we sampled every year. This dendrogram is to illustrate the hierarchical relationship among the species found at these stations, allowing us to identify clusters and patterns of similarity 
+We use the Norwegian Quality index as it is recomended by the fisheries institute and you can see it branches out from the other two indexes. The lowercase "n" is for "normalized".
+:::
+
+
+## {background-image="images/11.png"}
+
+::: {.notes}
+This dendogram shows how all the 2013 stations and most of the 2014 stations stand out in the bottom 
+:::
+
+<br>
+<br>
+
+
+<span style="display: inline-block; width: 30%;">
+<b>Normalized Quality indexes.</b>
+</span>
+
+
+
+
+## {background-image="images/sationdendo2.png"}
+
+<br>
+<br>
+
+<span style="display: inline-block; width: 30%;">
+<b>Normalized Quality indexes.</b>
+</span>
+
+<br>
+
+<span style="display: inline-block; width: 30%;">
+The 2013 samples are all at the bottom.
+</span>
+
+
+
+
+## {background-image="images/sationdendo3.png"}
+
+::: {.notes}
+One might expect that the situation in 1999 before the construction of the bridge was pristine but this is something we may have to take a look at in our data.
+:::
+
+
+<br>
+<br>
+
+<span style="display: inline-block; width: 30%;">
+<b>Normalized Quality indexes.</b>
+</span>
+
+<br>
+
+<span style="display: inline-block; width: 30%;">
+The 2013 samples are all at the bottom.
+</span>
+
+<br>
+
+<span style="display: inline-block; width: 30%;">
+The samples from 1999 are not at the top!
+</span>
+
+## 
+
+::: {.notes}
+One last thing that I'm excited about is the matching of our data with the feeding guild data from Bitish Columbia. This will definately give us something to write about in our upcoming paper.
+:::
+
+::: columns
+::: {.column width="50%"}
+
+<br>
+
+- We matched our data with a Canadian dataset that includes detailed information on benthic macro-faunal feeding habits.
+
+- This cross-referencing allowed us to infer feeding guilds, shedding light on marine fauna succession post-catastrophe
+
+:::
+
+::: {.column width="50%"}
+
+![](images/canada.png){width=80%}
+:::
+:::
+
+
+
+
+##  {background-iframe="https://valtyrio.shinyapps.io/docs/" background-interactive="true"}
+
+
+## The Data handling
+
+::: {.notes}
+One last thing that should be a presentation in itself of how we get from here to here. It's not preferable to get ecxel documents with all sorts of comments all over the place but... We were extremely lucky with how GV handled his data and made sure nothing got lost.
+:::
+
+::: columns
+::: {.column width="50%"}
+    Before
+
+![](images/disaster.png){fig-align="center"}
+:::
+
+::: {.column width="50%"}
+    After
+
+![](images/recovery.png)
+:::
+:::
+
+
+##
+
+::: {.notes}
+I want to give a shout out to this incredible R package
+:::
+
+![](images/worrms.png)
+
+- **Outdated** or **misspelled names** were plentyful in our data.
+- We used the R package **'worms'** to aid in the verification of species names.
+- 'worms' also provided the taxonomic hierarchy for each species.
+
+
+
 ##  {background-image="images/12.png"}
+
+::: {.notes}
+These are my collaborators. From our first cruise to be exact. there were many others on later sampling trips, women also. Thank god I didn't bring my camera all the times.
+:::
